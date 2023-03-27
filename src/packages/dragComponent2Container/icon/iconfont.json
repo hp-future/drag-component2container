@@ -1,0 +1,37 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "4878739",
+      "name": "表格",
+      "font_class": "biaoge",
+      "unicode": "e621",
+      "unicode_decimal": 58913
+    },
+    {
+      "icon_id": "22213019",
+      "name": "LINE_CHART",
+      "font_class": "LINE_CHART",
+      "unicode": "e9a8",
+      "unicode_decimal": 59816
+    },
+    {
+      "icon_id": "22213023",
+      "name": "HISTOGRAM",
+      "font_class": "HISTOGRAM",
+      "unicode": "e9a9",
+      "unicode_decimal": 59817
+    },
+    {
+      "icon_id": "22213025",
+      "name": "PIE_CHART",
+      "font_class": "PIE_CHART",
+      "unicode": "e9aa",
+      "unicode_decimal": 59818
+    }
+  ]
+}
