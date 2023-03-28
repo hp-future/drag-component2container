@@ -3,7 +3,7 @@
     vertical-align: top;
     width: 300px;
     height: 150px;
-    background-color: rgb(255, 0, 0, 0.1);
+    background-color: #fff;
     padding: 10px;
     box-sizing: border-box;
     cursor: pointer;
@@ -41,14 +41,14 @@
                 cursor: nesw-resize;
             }
 
-            &.right {
+            &.right-center {
                 right: 0;
                 top: 50%;
                 transform: translateY(-50%);
                 cursor: e-resize;
             }
 
-            &.left {
+            &.left-center {
                 left: 0;
                 top: 50%;
                 transform: translateY(-50%);
