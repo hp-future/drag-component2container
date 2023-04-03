@@ -1,4 +1,4 @@
-import './style.scss';
+import styles from './style.module.less';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { updateCurrentChart } from '../../store/slice';
 import { Descriptions, InputNumber, Collapse } from 'antd';
@@ -9,9 +9,9 @@ const ViewProps = () => {
   const dispatch = useAppDispatch();
 
   return (
-    <div className="props-view" style={{ display: data.length > 0 ? 'block' : 'none' }}>
-      <div className="title">chart配置</div>
-      <div className="content">
+    <div className={styles['props-view']} style={{ display: data.length > 0 ? 'block' : 'none' }}>
+      <div className={styles.title}>chart配置</div>
+      <div className={styles.content}>
         <Collapse style={{ borderRadius: 0 }} size="small" bordered={false}>
           <Collapse.Panel header="图表容器配置" key="1">
             <Descriptions column={1} colon={false} labelStyle={{ alignItems: 'center' }}>

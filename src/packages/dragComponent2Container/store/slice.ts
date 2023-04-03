@@ -1,69 +1,37 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CSSProperties } from 'react';
 import { RootState } from './index';
-
-export type DataType = {
-  key: string;
-  // 容器属性
-  containerProps: {
-    width: number;
-    height: number;
-    backgroungColor: CSSProperties['backgroundColor'];
-  };
-  // 图表属性
-  chartProps: {
-    // 图表类型
-    type: string;
-  };
-};
-// 为 slice state 定义一个类型
-interface State {
-  data: DataType[];
-  currentChart: DataType;
-}
-
-// 使用该类型定义初始 state
-const initialState: State = {
-  data: [],
-  currentChart: {
-    key: '',
-    containerProps: {
-      width: 0,
-      height: 0,
-      backgroungColor: '#fff',
-    },
-    // 图表属性
-    chartProps: {
-      // 图表类型
-      type: '',
-    },
-  },
-};
+import state from './state';
+import { componentType, StateType } from './state/types';
 
 export const Slice = createSlice({
-  name: 'config',
-  // `createSlice` 将从 `initialState` 参数推断 state 类型
-  initialState,
+  name: 'dragComponent',
+  initialState: state,
   reducers: {
-    updateData(state: State, action: PayloadAction<DataType>) {
-      const index = state.data.findIndex((item) => item.key === action.payload.key);
-      if (index === -1) {
-        state.data = [...state.data, action.payload];
-      } else {
-        state.data[index] = action.payload;
-      }
-      state.currentChart = action.payload;
+    addComponents(state: StateType, action: PayloadAction<Omit<componentType, 'id'>>) {
+      const id = 'chart_' + state.components.length;
+      state.components.push({ ...action.payload, id });
     },
-    updateCurrentChart(state: State, action: PayloadAction<DataType>) {
-      const index = state.data.findIndex((item) => item.key === action.payload.key);
-      state.data[index] = action.payload;
-      state.currentChart = action.payload;
+    updateComponents(state: StateType, action: PayloadAction<componentType>) {
+      const index = state.components.findIndex((item) => item.id === action.payload.id);
+      if (index !== -1) {
+        state.components[index] = action.payload;
+      }
+    },
+    updateDragging(state: StateType, action: PayloadAction<boolean>) {
+      state.dragging = action.payload;
+    },
+    updateReticuleInfo(state: StateType, action: PayloadAction<StateType['reticuleInfo']>) {
+      state.reticuleInfo = action.payload;
+    },
+    updateA(state: StateType, action: PayloadAction<number>) {
+      state.a = action.payload;
     },
   },
 });
 
-export const { updateData, updateCurrentChart } = Slice.actions;
+export const { addComponents, updateComponents, updateDragging, updateReticuleInfo, updateA } = Slice.actions;
 // 选择器等其他代码可以使用导入的 `RootState` 类型
-export const selectConfig = (state: RootState) => state.config.data;
+export const selectConfig = (state: RootState) => state.dragComponent.components;
 
 export default Slice.reducer;

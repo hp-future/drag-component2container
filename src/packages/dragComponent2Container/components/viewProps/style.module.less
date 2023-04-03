@@ -1,4 +1,4 @@
-@import '../../base.scss';
+@import '../../base.less';
 
 .props-view {
     width: 260px;
@@ -21,7 +21,7 @@
         height: calc(100% - 30px);
         overflow: auto;
 
-        @include scroll;
+        .scroll();
 
         .ant-collapse-content {
             background-color: #fff;

@@ -1,51 +1,102 @@
-import { RefObject, useEffect, createElement } from 'react';
-import { createRoot } from 'react-dom/client';
-import LineChart from '../components/charts/line';
-import { useAppSelector, useAppDispatch } from '../store/hooks';
-import { updateData } from '../store/slice';
+import { useEffect, useRef } from 'react';
+import { useAppDispatch } from '../store/hooks';
+import { addComponents, updateDragging, updateReticuleInfo } from '../store/slice';
 
 /**
  * 自定义 hook，封装拖拽逻辑
  */
-const useDrag = (asideRef: RefObject<HTMLElement>, mainRef: RefObject<HTMLElement>) => {
-  const config = useAppSelector((state) => state.config);
+const useDrag = () => {
   const dispatch = useAppDispatch();
+  const asideRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  // 拖拽全程中的数据
+  const dragStartInfo = useRef({ x: 0, y: 0, width: 0, height: 0 });
+  // 正在拖拽
+  const dragging = useRef(false);
+  // 组件类型
+  const componentType = useRef('');
+  // 标线信息
+  const reticuleInfo = useRef({ x: 0, y: 0 });
 
   // 开始拖拽
-  function dragStartEvent(e: React.DragEvent) {
-    // console.log(e);
+  function dragStartEvent(e: DragEvent) {
+    dispatch(updateDragging(true));
     const target = e.target as HTMLElement;
-    e.dataTransfer!.setData('type', target.getAttribute('data-type')!);
+    componentType.current = target.getAttribute('data-type')!;
+
+    // 鼠标在元素内的点击位置
+    const x = e.clientX - target.getBoundingClientRect().left;
+    const y = e.clientY - target.getBoundingClientRect().top;
+    dragStartInfo.current = { x, y, width: target.clientWidth, height: target.clientHeight };
+
+    // 开始拖拽
+    dragging.current = true;
   }
-  // 拖拽到目标元素上方
-  function dragOverEvent(e: React.DragEvent) {
+
+  // 在目标区域内移动
+  function dragoverEvent(e: DragEvent) {
     e.preventDefault();
+
+    const currentTarget = e.currentTarget as HTMLElement;
+
+    // 计算在目标区域内，鼠标的相对位置
+    const mouseX = e.clientX - currentTarget.getBoundingClientRect().left;
+    const mouseY = e.clientY - currentTarget.getBoundingClientRect().top;
+
+    // 更新标线信息
+    const y = mouseY - dragStartInfo.current.y - 1;
+    const x = mouseX - dragStartInfo.current.x - 1;
+    dispatch(updateReticuleInfo({ x, y }));
+    reticuleInfo.current = { y, x };
   }
-  // 在目标元素释放
-  function dropEvent(e: React.DragEvent) {
-    // console.log(e);
-    const lineType = e.dataTransfer!.getData('type');
+
+  // 在目标区域释放
+  function dropEvent(e: DragEvent) {
+    if (!(e.target as HTMLElement).hasAttribute('data-drop-container')) {
+      return;
+    }
+
+    dragging.current = false;
+    dispatch(updateDragging(false));
 
     dispatch(
-      updateData({
-        key: 'chart_' + config.data.length,
-        containerProps: {
-          width: 300,
-          height: 150,
-          backgroungColor: '#fff',
-        },
-        chartProps: {
-          type: lineType,
-        },
+      addComponents({
+        type: componentType.current,
+        layout: { ...reticuleInfo.current },
       })
     );
   }
 
-  return {
-    dragStartEvent,
-    dragOverEvent,
-    dropEvent,
-  };
+  useEffect(() => {
+    if (asideRef.current) {
+      asideRef.current.ondragstart = dragStartEvent;
+      asideRef.current.onmouseup = () => {
+        dragging.current = false;
+        dispatch(updateDragging(false));
+      };
+    }
+    if (mainRef.current) {
+      mainRef.current.ondragover = dragoverEvent;
+      mainRef.current.ondrop = dropEvent;
+
+      mainRef.current.ondragenter = (e: DragEvent) => {
+        if (!(e.target as HTMLElement).hasAttribute('data-drop-container')) {
+          return;
+        }
+        dragging.current = true;
+        dispatch(updateDragging(true));
+      };
+      mainRef.current.ondragleave = (e: DragEvent) => {
+        if (reticuleInfo.current.x > 0) {
+          return;
+        }
+        dragging.current = false;
+        dispatch(updateDragging(false));
+      };
+    }
+  }, []);
+
+  return { asideRef, mainRef };
 };
 
 export default useDrag;
