@@ -4,5 +4,6 @@ export const componentTypes = [
   // { type: 'pie', title: '饼图', icon: 'icon-PIE_CHART' },
   // { type: 'table', title: '列表', icon: 'icon-biaoge' },
   // { type: 'chartDemo', title: 'chartDemo', icon: 'icon-biaoge' },
-  { type: 'button', title: 'button', icon: 'icon-biaoge' },
+  { type: 'button', title: '按钮', icon: '' },
+  { type: 'table', title: '表格', icon: '' },
 ];

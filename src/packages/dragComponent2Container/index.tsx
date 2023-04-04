@@ -1,18 +1,14 @@
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import styles from './styles.module.less';
 import { componentTypes } from './config';
 import useDrag from './hooks/useDrag';
-import useDragComponent from './hooks/useDragComponent';
-import { useAppSelector, useAppDispatch } from './store/hooks';
-import LineChart from './components/charts/line';
-// import ViewProps from './components/viewProps';
-import { Button } from 'antd';
-import Handle from './components/handle';
+import { useAppDispatch, useAppSelector } from './store/hooks';
 import Reticule from './components/reticule';
+import ComponentContainer from './components/componentContainer';
+import { actions } from './store/slice';
 
 const DragComponent2Container = () => {
-  const components = useAppSelector((state) => state.dragComponent.components);
-  // const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
   // 侧边栏，可拖拽组件列表
   const draggableComponents = componentTypes.map((item) => (
@@ -27,27 +23,9 @@ const DragComponent2Container = () => {
   function mainClick(e: React.MouseEvent) {}
 
   function mainMouseDown(e: React.MouseEvent) {
-    if (!(e.target as HTMLElement).hasAttribute('data-drop-container')) {
-      return;
+    if ((e.target as HTMLElement).hasAttribute('data-drop-container')) {
+      dispatch(actions.updateCurrentComponentId({ id: '' }));
     }
-    const currentTarget = e.currentTarget as HTMLElement;
-
-    const handleBox = currentTarget.querySelectorAll('.handleBox');
-    handleBox.forEach((item) => {
-      (item as HTMLElement).style.display = 'none';
-    });
-  }
-
-  // 组件点击事件
-  function componentClick(e: React.MouseEvent) {
-    e.stopPropagation();
-    if (!e.ctrlKey) {
-      return;
-    }
-    const currentTarget = e.currentTarget as HTMLElement;
-
-    const handleBox = currentTarget.querySelector('.handleBox') as HTMLElement;
-    handleBox.style.display = 'block';
   }
 
   return (
@@ -56,28 +34,7 @@ const DragComponent2Container = () => {
       <aside ref={asideRef}>{draggableComponents}</aside>
       {/* 展示区域 */}
       <main ref={mainRef} data-drop-container onClick={mainClick} onMouseDown={mainMouseDown}>
-        {components.map((item, index) => (
-          <div
-            key={item.id}
-            className={styles.componentContainer}
-            onClick={componentClick}
-            style={{ transform: `translate(${item.layout.x}px, ${item.layout.y}px)` }}
-          >
-            {(() => {
-              switch (item.type) {
-                case 'button':
-                  return (
-                    <Button style={{ width: '100%', height: '100%' }} data-is-component>
-                      按钮
-                    </Button>
-                  );
-                default:
-                  return null;
-              }
-            })()}
-            <Handle />
-          </div>
-        ))}
+        <ComponentContainer />
         <Reticule />
       </main>
       {/* 属性设置 */}

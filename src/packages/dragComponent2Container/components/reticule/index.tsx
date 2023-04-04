@@ -1,9 +1,11 @@
 import styles from './style.module.less';
 import { useAppSelector } from '../../store/hooks';
 import { useEffect, useRef } from 'react';
+import useAlignLine from './hook/useAlignLine';
+import useReticle from './hook/useReticle';
 
 /**
- * 标线，十字线
+ * 标线
  * @returns
  */
 const Reticule = () => {
@@ -16,23 +18,15 @@ const Reticule = () => {
     }
   }, [dragComponentData.dragging]);
 
-  useEffect(() => {
-    if (!reticuleRef.current) {
-      return;
-    }
-    const { x, y } = dragComponentData.reticuleInfo;
-    // x轴标线
-    const xReticule = reticuleRef.current.firstElementChild as HTMLElement;
-    xReticule.style.transform = `translateY(${y}px)`;
-    // y轴标线
-    const yReticule = reticuleRef.current.lastElementChild as HTMLElement;
-    yReticule.style.transform = `translateX(${x}px)`;
-  }, [dragComponentData.reticuleInfo.x, dragComponentData.reticuleInfo.y]);
+  useReticle(reticuleRef);
+  useAlignLine(reticuleRef);
 
   return (
     <div className={styles.Reticule} ref={reticuleRef} id="Reticule">
-      <div className={styles.x}></div>
-      <div className={styles.y}></div>
+      <div data-distance={dragComponentData.reticuleInfo.y + 'px'} id="Reticule-X" className={styles.x}></div>
+      <div data-distance={dragComponentData.reticuleInfo.x + 'px'} id="Reticule-Y" className={styles.y}></div>
+      <div id="align-X"></div>
+      <div id="align-Y"></div>
     </div>
   );
 };

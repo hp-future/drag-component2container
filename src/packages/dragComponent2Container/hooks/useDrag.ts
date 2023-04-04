@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useAppDispatch } from '../store/hooks';
-import { addComponents, updateDragging, updateReticuleInfo } from '../store/slice';
+import { actions } from '../store/slice';
+
+let timeId: number | undefined;
 
 /**
  * 自定义 hook，封装拖拽逻辑
@@ -20,7 +22,7 @@ const useDrag = () => {
 
   // 开始拖拽
   function dragStartEvent(e: DragEvent) {
-    dispatch(updateDragging(true));
+    dispatch(actions.updateDragging(true));
     const target = e.target as HTMLElement;
     componentType.current = target.getAttribute('data-type')!;
 
@@ -31,6 +33,8 @@ const useDrag = () => {
 
     // 开始拖拽
     dragging.current = true;
+
+    dispatch(actions.updateCurrentComponentId({ id: '' }));
   }
 
   // 在目标区域内移动
@@ -46,7 +50,7 @@ const useDrag = () => {
     // 更新标线信息
     const y = mouseY - dragStartInfo.current.y - 1;
     const x = mouseX - dragStartInfo.current.x - 1;
-    dispatch(updateReticuleInfo({ x, y }));
+    dispatch(actions.updateReticuleInfo({ x, y }));
     reticuleInfo.current = { y, x };
   }
 
@@ -57,14 +61,20 @@ const useDrag = () => {
     }
 
     dragging.current = false;
-    dispatch(updateDragging(false));
+    dispatch(actions.updateDragging(false));
 
+    const id = 'chart_' + Date.now();
     dispatch(
-      addComponents({
+      actions.addComponents({
+        id,
         type: componentType.current,
         layout: { ...reticuleInfo.current },
       })
     );
+    clearTimeout(timeId);
+    timeId = setTimeout(() => {
+      dispatch(actions.updateComponentsRect({ id }));
+    }, 0);
   }
 
   useEffect(() => {
@@ -72,7 +82,7 @@ const useDrag = () => {
       asideRef.current.ondragstart = dragStartEvent;
       asideRef.current.onmouseup = () => {
         dragging.current = false;
-        dispatch(updateDragging(false));
+        dispatch(actions.updateDragging(false));
       };
     }
     if (mainRef.current) {
@@ -84,14 +94,14 @@ const useDrag = () => {
           return;
         }
         dragging.current = true;
-        dispatch(updateDragging(true));
+        dispatch(actions.updateDragging(true));
       };
       mainRef.current.ondragleave = (e: DragEvent) => {
         if (reticuleInfo.current.x > 0) {
           return;
         }
         dragging.current = false;
-        dispatch(updateDragging(false));
+        dispatch(actions.updateDragging(false));
       };
     }
   }, []);

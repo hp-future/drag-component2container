@@ -10,7 +10,8 @@ const state: StateType = {
     x: 0,
     y: 0,
   },
-  a: 1,
+  componentsRect: [],
+  currentComponentId: '',
 };
 
 export default state;

@@ -1,9 +1,14 @@
 import { RefObject, useEffect, useRef } from 'react';
+import { useAppDispatch } from '../../../store/hooks';
+import { getTranslate } from '../../../utils/util';
+import { actions } from '../../../store/slice';
 
 /**
  * 缩放
  */
 const useResize = (ref: RefObject<HTMLDivElement>) => {
+  const dispatch = useAppDispatch();
+
   // 起始位置
   const mouseStartPosi = useRef({ x: 0, y: 0 });
   // 鼠标正在移动
@@ -19,16 +24,14 @@ const useResize = (ref: RefObject<HTMLDivElement>) => {
       return;
     }
 
-    ref.current.addEventListener('mouseup', mouseup);
-    ref.current.addEventListener('mousedown', mousedown);
-    document.addEventListener('mousemove', mousemove);
-    document.addEventListener('mouseup', mouseup);
+    ref.current.addEventListener('mouseup', mouseup, true);
+    ref.current.addEventListener('mousedown', mousedown, true);
+    document.addEventListener('mousemove', mousemove, true);
 
     return () => {
-      document.removeEventListener('mousemove', mousemove);
-      document.removeEventListener('mouseup', mouseup);
-      ref.current?.removeEventListener('mouseup', mouseup);
-      ref.current?.removeEventListener('mousedown', mousedown);
+      document.removeEventListener('mousemove', mousemove, true);
+      ref.current?.removeEventListener('mouseup', mouseup, true);
+      ref.current?.removeEventListener('mousedown', mousedown, true);
     };
   }, []);
 
@@ -96,30 +99,32 @@ const useResize = (ref: RefObject<HTMLDivElement>) => {
   }
   function mouseup(e: MouseEvent) {
     mouseMmoving.current = false;
+
+    // 更新组件的物理信息
+    const parentEle = (e.currentTarget as HTMLElement).parentElement as HTMLElement;
+    dispatch(actions.updateComponentsRect({ id: parentEle.id }));
   }
   function mousedown(e: MouseEvent) {
     if (!(e.target as HTMLElement).hasAttribute('handle-name')) {
       return;
     }
-    mouseStartPosi.current = { x: e.clientX, y: e.clientY };
+
+    // 开始移动
     mouseMmoving.current = true;
+    // 鼠标移动前的起始位置
+    mouseStartPosi.current = { x: e.clientX, y: e.clientY };
 
     const parentElement = (e.currentTarget as HTMLElement).parentElement!;
+    // 初始大小
     startSize.current = { width: parentElement.clientWidth, height: parentElement.clientHeight };
+    // 初始tanslate
+    const [translateX, translateY] = getTranslate(parentElement);
+    startTransform.current = { translateX, translateY };
 
+    // 获得缩放手柄，记录缩放方向
     const handleName = (e.target as HTMLElement).getAttribute('handle-name');
     scaleDirection.current = handleName || '';
-
-    const style = getComputedStyle(parentElement!);
-
-    const [translateX, translateY] = style.transform
-      .match(/(?<=matrix\().*(?=\))/)![0]
-      .split(',')
-      .slice(4);
-    startTransform.current = { translateX: Number(translateX), translateY: Number(translateY) };
   }
-
-  function topLeftScale(e: MouseEvent) {}
 };
 
 export default useResize;

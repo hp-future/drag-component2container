@@ -19,17 +19,37 @@ export type componentType = {
   };
 };
 
+// 各组件的物理信息
+export type ComponentsRectType = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
+
 /**
  * 全局状态类型
  */
 export type StateType = {
   components: Array<componentType>;
-  // 正在拖拽
+  /**
+   * 正在拖拽
+   * @default false
+   */
   dragging: boolean;
-  // 标线信息
+  /**
+   * 标线信息
+   */
   reticuleInfo: {
     x: number;
     y: number;
   };
-  a: number;
+  /**
+   * 各组件的物理信息，拖拽对齐时使用
+   */
+  componentsRect: Array<[string, ComponentsRectType]>;
+  /**
+   * 当前正在操作的组件id
+   */
+  currentComponentId: string;
 };
