@@ -23,6 +23,15 @@ export const Slice = createSlice({
     updateReticuleInfo(state: StateType, action: PayloadAction<StateType['reticuleInfo']>) {
       state.reticuleInfo = action.payload;
     },
+    updateAlignLineInfo(state: StateType, action: PayloadAction<{ x?: number | null; y?: number | null }>) {
+      const { x, y } = action.payload;
+      if (x !== undefined) {
+        state.alignLineInfo.x = x;
+      }
+      if (y !== undefined) {
+        state.alignLineInfo.y = y;
+      }
+    },
     updateComponentsRect(state: StateType, action: PayloadAction<{ id: string }>) {
       const { id } = action.payload;
       const ele = document.getElementById(id)!;

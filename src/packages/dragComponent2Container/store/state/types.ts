@@ -38,11 +38,18 @@ export type StateType = {
    */
   dragging: boolean;
   /**
-   * 标线信息
+   * 十字标线信息
    */
   reticuleInfo: {
     x: number;
     y: number;
+  };
+  /**
+   * 对齐标线信息
+   */
+  alignLineInfo: {
+    x: number | null;
+    y: number | null;
   };
   /**
    * 各组件的物理信息，拖拽对齐时使用

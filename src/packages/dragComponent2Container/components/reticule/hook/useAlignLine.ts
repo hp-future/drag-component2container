@@ -1,5 +1,6 @@
+import { actions } from './../../../store/slice';
 import { RefObject, useEffect } from 'react';
-import { useAppSelector } from '../../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 
 /**
  * 动态显示对齐标线
@@ -7,6 +8,7 @@ import { useAppSelector } from '../../../store/hooks';
 const useAlignLine = (ref: RefObject<HTMLDivElement>) => {
   // 十字标线信息
   const { reticuleInfo, componentsRect, currentComponentId } = useAppSelector((state) => state.dragComponent);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (!ref.current) {
@@ -35,15 +37,18 @@ const useAlignLine = (ref: RefObject<HTMLDivElement>) => {
 
         if (yDiffTop <= 15) {
           alignX.style.transform = `translateY(${top}px)`;
+          dispatch(actions.updateAlignLineInfo({ y: top }));
         }
         if (yDiffBottom <= 15) {
           alignX.style.transform = `translateY(${top + height}px)`;
+          dispatch(actions.updateAlignLineInfo({ y: top + height }));
         }
 
         break;
       } else {
         alignX.style.display = 'none';
         alignX.style.transform = 'none';
+        dispatch(actions.updateAlignLineInfo({ y: null }));
       }
     }
 
@@ -60,15 +65,18 @@ const useAlignLine = (ref: RefObject<HTMLDivElement>) => {
 
         if (xDiffLeft <= 15) {
           alignY.style.transform = `translateX(${left}px)`;
+          dispatch(actions.updateAlignLineInfo({ x: left }));
         }
         if (xDiffRight <= 15) {
           alignY.style.transform = `translateX(${left + width}px)`;
+          dispatch(actions.updateAlignLineInfo({ x: left + width }));
         }
 
         break;
       } else {
         alignY.style.display = 'none';
         alignY.style.transform = 'none';
+        dispatch(actions.updateAlignLineInfo({ x: null }));
       }
     }
   }, [reticuleInfo.x, reticuleInfo.y]);

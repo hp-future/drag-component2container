@@ -10,6 +10,10 @@ const state: StateType = {
     x: 0,
     y: 0,
   },
+  alignLineInfo: {
+    x: null,
+    y: null,
+  },
   componentsRect: [],
   currentComponentId: '',
 };

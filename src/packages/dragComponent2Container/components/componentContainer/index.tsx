@@ -6,7 +6,7 @@ import Handle from '../handle';
 import { actions } from '../../store/slice';
 
 const ComponentContainer = () => {
-  const components = useAppSelector((state) => state.dragComponent.components);
+  const { components } = useAppSelector((state) => state.dragComponent);
   const dispatch = useAppDispatch();
 
   /**

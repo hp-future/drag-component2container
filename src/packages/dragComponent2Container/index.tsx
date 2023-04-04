@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './styles.module.less';
 import { componentTypes } from './config';
 import useDrag from './hooks/useDrag';
-import { useAppDispatch, useAppSelector } from './store/hooks';
+import { useAppDispatch } from './store/hooks';
 import Reticule from './components/reticule';
 import ComponentContainer from './components/componentContainer';
 import { actions } from './store/slice';
@@ -17,10 +17,6 @@ const DragComponent2Container = () => {
       <span>{item.title}</span>
     </div>
   ));
-  const { asideRef, mainRef } = useDrag();
-
-  // 主区域点击事件
-  function mainClick(e: React.MouseEvent) {}
 
   function mainMouseDown(e: React.MouseEvent) {
     if ((e.target as HTMLElement).hasAttribute('data-drop-container')) {
@@ -28,12 +24,14 @@ const DragComponent2Container = () => {
     }
   }
 
+  const { asideRef, mainRef } = useDrag();
+
   return (
     <div className={styles.DragComponent2Container}>
       {/* 侧边栏 */}
       <aside ref={asideRef}>{draggableComponents}</aside>
       {/* 展示区域 */}
-      <main ref={mainRef} data-drop-container onClick={mainClick} onMouseDown={mainMouseDown}>
+      <main ref={mainRef} data-drop-container onMouseDown={mainMouseDown}>
         <ComponentContainer />
         <Reticule />
       </main>

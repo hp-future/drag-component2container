@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { useAppDispatch } from '../store/hooks';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { actions } from '../store/slice';
+import { StateType } from '../store/state/types';
 
 let timeId: number | undefined;
 
@@ -13,28 +14,48 @@ const useDrag = () => {
   const mainRef = useRef<HTMLElement>(null);
   // 拖拽全程中的数据
   const dragStartInfo = useRef({ x: 0, y: 0, width: 0, height: 0 });
-  // 正在拖拽
-  const dragging = useRef(false);
-  // 组件类型
-  const componentType = useRef('');
   // 标线信息
   const reticuleInfo = useRef({ x: 0, y: 0 });
 
+  const dragComponentDataRef = useRef<StateType>();
+  useAppSelector((state) => {
+    dragComponentDataRef.current = state.dragComponent;
+    return state.dragComponent;
+  });
+
   // 开始拖拽
   function dragStartEvent(e: DragEvent) {
-    dispatch(actions.updateDragging(true));
     const target = e.target as HTMLElement;
-    componentType.current = target.getAttribute('data-type')!;
+    // 传递拖拽信息
+    e.dataTransfer?.setData('type', target.getAttribute('data-type')!);
 
     // 鼠标在元素内的点击位置
     const x = e.clientX - target.getBoundingClientRect().left;
     const y = e.clientY - target.getBoundingClientRect().top;
     dragStartInfo.current = { x, y, width: target.clientWidth, height: target.clientHeight };
 
-    // 开始拖拽
-    dragging.current = true;
-
     dispatch(actions.updateCurrentComponentId({ id: '' }));
+  }
+
+  // 鼠标抬起
+  function mouseUpEvent(e: MouseEvent) {
+    dispatch(actions.updateDragging(false));
+  }
+
+  // 进入目标区域
+  function dragEnterEvent(e: DragEvent) {
+    if ((e.target as HTMLElement).hasAttribute('data-drop-container')) {
+      dispatch(actions.updateDragging(true));
+      return;
+    }
+  }
+
+  // 离开目标区域
+  function dragLeaveEvent(e: DragEvent) {
+    if ((e.target as HTMLElement).hasAttribute('data-drop-container')) {
+      dispatch(actions.updateDragging(false));
+      return;
+    }
   }
 
   // 在目标区域内移动
@@ -47,11 +68,12 @@ const useDrag = () => {
     const mouseX = e.clientX - currentTarget.getBoundingClientRect().left;
     const mouseY = e.clientY - currentTarget.getBoundingClientRect().top;
 
-    // 更新标线信息
-    const y = mouseY - dragStartInfo.current.y - 1;
-    const x = mouseX - dragStartInfo.current.x - 1;
-    dispatch(actions.updateReticuleInfo({ x, y }));
+    // 更新标线位置信息
+    const y = mouseY - dragStartInfo.current.y;
+    const x = mouseX - dragStartInfo.current.x;
     reticuleInfo.current = { y, x };
+
+    dispatch(actions.updateReticuleInfo(reticuleInfo.current));
   }
 
   // 在目标区域释放
@@ -60,15 +82,24 @@ const useDrag = () => {
       return;
     }
 
-    dragging.current = false;
     dispatch(actions.updateDragging(false));
 
     const id = 'chart_' + Date.now();
+
+    const { alignLineInfo } = dragComponentDataRef.current!;
+    const newPosi = { ...reticuleInfo.current };
+    if (alignLineInfo.x !== null && alignLineInfo.x !== undefined) {
+      newPosi.x = alignLineInfo.x;
+    }
+    if (alignLineInfo.y !== null && alignLineInfo.y !== undefined) {
+      newPosi.y = alignLineInfo.y;
+    }
+
     dispatch(
       actions.addComponents({
         id,
-        type: componentType.current,
-        layout: { ...reticuleInfo.current },
+        type: e.dataTransfer?.getData('type')!,
+        layout: { ...newPosi },
       })
     );
     clearTimeout(timeId);
@@ -77,33 +108,31 @@ const useDrag = () => {
     }, 0);
   }
 
+  // 初始化注册事件
   useEffect(() => {
-    if (asideRef.current) {
-      asideRef.current.ondragstart = dragStartEvent;
-      asideRef.current.onmouseup = () => {
-        dragging.current = false;
-        dispatch(actions.updateDragging(false));
-      };
+    const asideDom = asideRef.current;
+    if (asideDom) {
+      asideDom.addEventListener('dragstart', dragStartEvent, true);
+      asideDom.addEventListener('mouseup', mouseUpEvent, true);
     }
-    if (mainRef.current) {
-      mainRef.current.ondragover = dragoverEvent;
-      mainRef.current.ondrop = dropEvent;
 
-      mainRef.current.ondragenter = (e: DragEvent) => {
-        if (!(e.target as HTMLElement).hasAttribute('data-drop-container')) {
-          return;
-        }
-        dragging.current = true;
-        dispatch(actions.updateDragging(true));
-      };
-      mainRef.current.ondragleave = (e: DragEvent) => {
-        if (reticuleInfo.current.x > 0) {
-          return;
-        }
-        dragging.current = false;
-        dispatch(actions.updateDragging(false));
-      };
+    const mainDom = mainRef.current;
+    if (mainDom) {
+      mainDom.addEventListener('dragover', dragoverEvent, true);
+      mainDom.addEventListener('drop', dropEvent, true);
+      mainDom.addEventListener('dragenter', dragEnterEvent, true);
+      mainDom.addEventListener('dragleave', dragLeaveEvent, true);
     }
+
+    return () => {
+      asideDom?.removeEventListener('dragstart', dragStartEvent, true);
+      asideDom?.removeEventListener('mouseup', mouseUpEvent, true);
+
+      mainDom?.removeEventListener('dragover', dragoverEvent, true);
+      mainDom?.removeEventListener('drop', dropEvent, true);
+      mainDom?.removeEventListener('dragenter', dragEnterEvent, true);
+      mainDom?.removeEventListener('dragleave', dragLeaveEvent, true);
+    };
   }, []);
 
   return { asideRef, mainRef };
