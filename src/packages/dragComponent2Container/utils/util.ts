@@ -9,8 +9,8 @@ export function getTranslate(target: HTMLElement) {
     return [0, 0];
   }
 
-  const matchs = style.transform.match(/(?<=matrix\().*(?=\))/) || [];
-  const [translateX, translateY] = matchs[0].split(',').slice(4);
+  const match = style.transform.match(/(?<=matrix\().*(?=\))/)?.[0] || '';
+  const [translateX, translateY] = match.split(',').slice(4);
 
   return [Number(translateX), Number(translateY)];
 }

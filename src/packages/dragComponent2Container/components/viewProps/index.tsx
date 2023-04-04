@@ -1,16 +1,16 @@
 import styles from './style.module.less';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { updateCurrentChart } from '../../store/slice';
+// import { updateCurrentChart } from '../../store/slice';
 import { Descriptions, InputNumber, Collapse } from 'antd';
 import React from 'react';
 
 const ViewProps = () => {
-  const { currentChart, data } = useAppSelector((state) => state.config);
+  const { components } = useAppSelector((state) => state.dragComponent);
   const dispatch = useAppDispatch();
 
   return (
-    <div className={styles['props-view']} style={{ display: data.length > 0 ? 'block' : 'none' }}>
-      <div className={styles.title}>chart配置</div>
+    <div className={styles['props-view']} style={{ display: components.length > 0 ? 'block' : 'none' }}>
+      {/* <div className={styles.title}>chart配置</div>
       <div className={styles.content}>
         <Collapse style={{ borderRadius: 0 }} size="small" bordered={false}>
           <Collapse.Panel header="图表容器配置" key="1">
@@ -51,7 +51,7 @@ const ViewProps = () => {
             </Descriptions>
           </Collapse.Panel>
         </Collapse>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -38,7 +38,6 @@ const DragComponent2Container = () => {
         <Reticule />
       </main>
       {/* 属性设置 */}
-      {/* <ViewProps /> */}
     </div>
   );
 };
