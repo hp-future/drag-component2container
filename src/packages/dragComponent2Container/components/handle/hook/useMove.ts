@@ -32,10 +32,10 @@ const useMove = (ref: RefObject<HTMLDivElement>) => {
 
     handleBoxDom.addEventListener('mousedown', mousedown, true);
     handleBoxDom.addEventListener('mouseup', mouseup, true);
-    document.addEventListener('mousemove', mousemove);
+    document.addEventListener('mousemove', mousemove, true);
 
     return () => {
-      document.removeEventListener('mousemove', mousemove);
+      document.removeEventListener('mousemove', mousemove, true);
       handleBoxDom?.removeEventListener('mousedown', mousedown, true);
       handleBoxDom?.removeEventListener('mouseup', mouseup, true);
     };
@@ -59,6 +59,10 @@ const useMove = (ref: RefObject<HTMLDivElement>) => {
     }
   }
   const mouseup = (e: MouseEvent) => {
+    if ((e.target as HTMLElement).hasAttribute('handle-name')) {
+      return;
+    }
+
     moving.current = false;
     dispatch(actions.updateDragging(false));
 
