@@ -3,29 +3,55 @@ import { RefObject, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 
 /**
- * 动态显示对齐标线
+ * 对齐标线
  */
-const useAlignLine = (ref: RefObject<HTMLDivElement>) => {
+const useAlignLine = () => {
   // 十字标线信息
-  const { reticuleInfo, componentsRect, currentComponentId } = useAppSelector((state) => state.dragComponent);
+  const { reticuleInfo, components, currentComponentId, dragging } = useAppSelector((state) => state.dragComponent);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (!ref.current) {
+    // 横向标线
+    const alignX = document.getElementById('align-X');
+    // 纵向标线
+    const alignY = document.getElementById('align-Y');
+
+    if (alignX && alignY) {
+      alignX.style.display = dragging ? 'block' : 'none';
+      alignY.style.display = dragging ? 'block' : 'none';
+    }
+  }, [dragging]);
+
+  useEffect(() => {
+    // 横向标线
+    const alignX = document.getElementById('align-X');
+    // 纵向标线
+    const alignY = document.getElementById('align-Y');
+
+    if (!(alignX && alignY)) {
       return;
     }
 
-    const reticuleDom = ref.current;
-    // x轴对齐线
-    const alignX = reticuleDom.querySelector('#align-X') as HTMLElement;
-    // y轴对齐线
-    const alignY = reticuleDom.querySelector('#align-Y') as HTMLElement;
+    if (reticuleInfo.x <= 15) {
+      alignY.style.transform = `translateX(0px)`;
+      dispatch(actions.updateAlignLineInfo({ x: reticuleInfo.x }));
+    } else {
+      alignY.style.transform = `translateX(-100px)`;
+      dispatch(actions.updateAlignLineInfo({ x: null }));
+    }
+    if (reticuleInfo.y <= 15) {
+      alignX.style.transform = `translateY(0px)`;
+      dispatch(actions.updateAlignLineInfo({ y: reticuleInfo.y }));
+    } else {
+      alignX.style.transform = `translateY(-100px)`;
+      dispatch(actions.updateAlignLineInfo({ y: null }));
+    }
 
-    const otherComs = componentsRect.filter((item) => item[0] !== currentComponentId);
+    const otherComs = components.filter((item) => item.id !== currentComponentId);
 
     // x轴对齐线
     for (let i = 0; i < otherComs.length; i++) {
-      const { top, height } = otherComs[i][1];
+      const { y: top, height } = otherComs[i].layout;
 
       // x轴对齐线在上
       const yDiffTop = Math.abs(reticuleInfo.y - top);
@@ -33,8 +59,6 @@ const useAlignLine = (ref: RefObject<HTMLDivElement>) => {
       const yDiffBottom = Math.abs(reticuleInfo.y - top - height);
 
       if (yDiffTop <= 15 || yDiffBottom <= 15) {
-        alignX.style.display = 'block';
-
         if (yDiffTop <= 15) {
           alignX.style.transform = `translateY(${top}px)`;
           dispatch(actions.updateAlignLineInfo({ y: top }));
@@ -46,23 +70,20 @@ const useAlignLine = (ref: RefObject<HTMLDivElement>) => {
 
         break;
       } else {
-        alignX.style.display = 'none';
-        alignX.style.transform = 'none';
+        alignX.style.transform = 'translateY(-100px)';
         dispatch(actions.updateAlignLineInfo({ y: null }));
       }
     }
 
     // y轴对齐线
     for (let i = 0; i < otherComs.length; i++) {
-      const { left, width } = otherComs[i][1];
+      const { x: left, width } = otherComs[i].layout;
       // y轴对齐线在左
       const xDiffLeft = Math.abs(reticuleInfo.x - left);
       // y轴对齐线在右
       const xDiffRight = Math.abs(reticuleInfo.x - left - width);
 
       if (xDiffLeft <= 15 || xDiffRight <= 15) {
-        alignY.style.display = 'block';
-
         if (xDiffLeft <= 15) {
           alignY.style.transform = `translateX(${left}px)`;
           dispatch(actions.updateAlignLineInfo({ x: left }));
@@ -74,8 +95,7 @@ const useAlignLine = (ref: RefObject<HTMLDivElement>) => {
 
         break;
       } else {
-        alignY.style.display = 'none';
-        alignY.style.transform = 'none';
+        alignY.style.transform = 'translateX(-100px)';
         dispatch(actions.updateAlignLineInfo({ x: null }));
       }
     }

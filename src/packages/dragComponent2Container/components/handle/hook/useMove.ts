@@ -9,18 +9,18 @@ import { getTranslate } from '../../../utils/util';
  */
 const useMove = (ref: RefObject<HTMLDivElement>) => {
   const dispatch = useAppDispatch();
-  // 正在移动
-  const moving = useRef(false);
+  const dragComponentDataState = useAppSelector((state) => state.dragComponent);
+  const dragComponentData = useRef<StateType>(dragComponentDataState);
+  useEffect(() => {
+    dragComponentData.current = dragComponentDataState;
+  }, [dragComponentDataState]);
+
+  // 鼠标正在移动
+  const mouseMmoving = useRef(false);
   // 移动的位置（相对于布局区域）
   const startPosi = useRef({ translateX: 0, translateY: 0 });
   const mouseStartPosi = useRef({ x: 0, y: 0 });
   const posi = useRef({ x: 0, y: 0 });
-  const dragComponentDataRef = useRef<StateType>();
-
-  useAppSelector((state) => {
-    dragComponentDataRef.current = state.dragComponent;
-    return state.dragComponent;
-  });
 
   // 初始化绑定事件
   useEffect(() => {
@@ -41,67 +41,89 @@ const useMove = (ref: RefObject<HTMLDivElement>) => {
     };
   }, []);
 
-  function mousemove(e: MouseEvent) {
-    if (!moving.current || !ref.current) {
-      return;
-    }
-
-    const newTranslateX = startPosi.current.translateX + e.clientX - mouseStartPosi.current.x;
-    const newTranslateY = startPosi.current.translateY + e.clientY - mouseStartPosi.current.y;
-    // ref.current.parentElement!.style.transform = `translate(${newTranslateX}px, ${newTranslateY}px)`;
-    posi.current = { x: newTranslateX, y: newTranslateY };
-    dispatch(actions.updateReticuleInfo(posi.current));
-    const { currentComponentId, alignLineInfo, components } = dragComponentDataRef.current!;
-
-    const findCom = components.find((item) => item.id === currentComponentId);
-    if (findCom) {
-      dispatch(actions.updateComponents({ ...findCom, layout: posi.current }));
-    }
-  }
-  const mouseup = (e: MouseEvent) => {
-    if ((e.target as HTMLElement).hasAttribute('handle-name')) {
-      return;
-    }
-
-    moving.current = false;
-    dispatch(actions.updateDragging(false));
-
-    const { currentComponentId, alignLineInfo, components } = dragComponentDataRef.current!;
-
-    const findCom = components.find((item) => item.id === currentComponentId);
-
-    const newPosi = { ...posi.current };
-    if (alignLineInfo.x !== null && alignLineInfo.x !== undefined) {
-      newPosi.x = alignLineInfo.x;
-    }
-    if (alignLineInfo.y !== null && alignLineInfo.y !== undefined) {
-      newPosi.y = alignLineInfo.y;
-    }
-
-    if (findCom) {
-      dispatch(actions.updateComponents({ ...findCom, layout: newPosi }));
-    }
-
-    // 更新组件的物理信息
-    const parentEle = (e.currentTarget as HTMLElement).parentElement as HTMLElement;
-    dispatch(actions.updateComponentsRect({ id: parentEle.id }));
-
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-  };
-
+  /**
+   * 鼠标左键按下事件
+   */
   function mousedown(e: MouseEvent) {
     if ((e.target as HTMLElement).hasAttribute('handle-name')) {
       return;
     }
 
-    moving.current = true;
-    const [translateX, translateY] = getTranslate((e.currentTarget as HTMLElement).parentElement!);
-    startPosi.current = { translateX, translateY };
+    if (e.button !== 0) {
+      return;
+    }
 
-    mouseStartPosi.current = { x: e.clientX, y: e.clientY };
+    mouseMmoving.current = true;
     dispatch(actions.updateDragging(true));
+
+    // 组件容器
+    const comContainer = (e.currentTarget as HTMLElement).parentElement!;
+    // 组件容器距离释放区域边界的距离
+    const [translateX, translateY] = getTranslate(comContainer);
+
+    // 起始位置
+    startPosi.current = { translateX, translateY };
+    mouseStartPosi.current = { x: e.clientX, y: e.clientY };
+
+    // 更新十字标线坐标
+    dispatch(actions.updateReticuleInfo({ x: translateX, y: translateY }));
+    // 更新对齐线坐标
+    dispatch(actions.updateAlignLineInfo({ x: null, y: null }));
   }
+
+  /**
+   * 鼠标左键按下移动事件
+   */
+  function mousemove(e: MouseEvent) {
+    if (!mouseMmoving.current || !ref.current) {
+      return;
+    }
+
+    if (e.button !== 0) {
+      return;
+    }
+
+    // 新的边界坐标
+    const newTranslateX = startPosi.current.translateX + e.clientX - mouseStartPosi.current.x;
+    const newTranslateY = startPosi.current.translateY + e.clientY - mouseStartPosi.current.y;
+    const newTranslate = { x: newTranslateX, y: newTranslateY };
+
+    const { currentComponentId, components } = dragComponentData.current;
+    // 更新十字标线坐标
+    dispatch(actions.updateReticuleInfo(newTranslate));
+    // 更新组件布局
+    const findCom = components.find((item) => item.id === currentComponentId);
+    if (findCom) {
+      dispatch(actions.updateComponents({ ...findCom, layout: { ...findCom.layout, ...newTranslate } }));
+    }
+  }
+
+  /**
+   * 鼠标左键抬起事件
+   */
+  const mouseup = (e: MouseEvent) => {
+    if ((e.target as HTMLElement).hasAttribute('handle-name')) {
+      return;
+    }
+
+    if (e.button !== 0) {
+      return;
+    }
+    mouseMmoving.current = false;
+
+    const { components, currentComponentId, alignLineInfo } = dragComponentData.current;
+
+    // 更新组件布局
+    const findCom = components.find((item) => item.id === currentComponentId);
+    if (findCom) {
+      const x = alignLineInfo.x ? alignLineInfo.x : findCom.layout.x;
+      const y = alignLineInfo.y ? alignLineInfo.y : findCom.layout.y;
+      const newLayout = { ...findCom.layout, x: x <= 15 ? 0 : x, y: y <= 15 ? 0 : y };
+      dispatch(actions.updateComponents({ ...findCom, layout: newLayout }));
+    }
+
+    dispatch(actions.updateDragging(false));
+  };
 };
 
 export default useMove;

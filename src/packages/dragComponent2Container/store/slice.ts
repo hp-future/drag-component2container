@@ -62,6 +62,12 @@ export const Slice = createSlice({
 
       state.currentComponentId = id;
     },
+    /**
+     * 更新z-index,保证被拖拽的目标元素一直在最上层
+     */
+    updateZIndex(state: StateType) {
+      state.zIndex += 1;
+    },
   },
 });
 

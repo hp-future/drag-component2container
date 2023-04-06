@@ -4,6 +4,7 @@ import { Button } from 'antd';
 import MyTable from '../charts/myTable';
 import Handle from '../handle';
 import { actions } from '../../store/slice';
+import React from 'react';
 
 const ComponentContainer = () => {
   const { components } = useAppSelector((state) => state.dragComponent);
@@ -27,12 +28,23 @@ const ComponentContainer = () => {
   function getComponentByType(type: string) {
     switch (type) {
       case 'button':
-        return <Button style={{ width: '100%', height: '100%' }}>按钮</Button>;
+        return (
+          <Button type="primary" block style={{ height: '100%', borderRadius: 0 }}>
+            按钮
+          </Button>
+        );
       case 'table':
         return <MyTable />;
       default:
         return null;
     }
+  }
+
+  /**
+   * 右键菜单
+   */
+  function contextMenu(e: React.MouseEvent) {
+    e.preventDefault();
   }
 
   return (
@@ -43,7 +55,13 @@ const ComponentContainer = () => {
           id={item.id}
           className={styles.componentContainer}
           onClick={componentClick}
-          style={{ transform: `translate(${item.layout.x}px, ${item.layout.y}px)` }}
+          onContextMenu={contextMenu}
+          draggable={false}
+          style={{
+            transform: `translate(${item.layout.x}px, ${item.layout.y}px)`,
+            width: `${item.layout.width}px`,
+            height: `${item.layout.height}px`,
+          }}
         >
           {getComponentByType(item.type)}
           <Handle />

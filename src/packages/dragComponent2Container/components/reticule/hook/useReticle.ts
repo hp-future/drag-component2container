@@ -1,27 +1,38 @@
-import { RefObject, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useAppSelector } from '../../../store/hooks';
 
 /**
- * 移动过程中的十字标线
+ * 十字标线
  */
-const useReticle = (ref: RefObject<HTMLDivElement>) => {
-  // 十字标线信息
-  const { reticuleInfo } = useAppSelector((state) => state.dragComponent);
+const useReticle = () => {
+  const { reticuleInfo, dragging } = useAppSelector((state) => state.dragComponent);
 
   useEffect(() => {
-    if (!ref.current) {
+    // 横向标线
+    const reticleX = document.getElementById('Reticule-X');
+    // 纵向标线
+    const reticleY = document.getElementById('Reticule-Y');
+
+    if (reticleX && reticleY) {
+      reticleX.style.display = dragging ? 'block' : 'none';
+      reticleY.style.display = dragging ? 'block' : 'none';
+    }
+  }, [dragging]);
+
+  useEffect(() => {
+    // 横向标线
+    const reticleX = document.getElementById('Reticule-X');
+    // 纵向标线
+    const reticleY = document.getElementById('Reticule-Y');
+
+    if (!(reticleX && reticleY)) {
       return;
     }
-    const reticuleDom = ref.current;
 
     const { x, y } = reticuleInfo;
-    // x轴标线
-    const xReticule = reticuleDom.querySelector('#Reticule-X') as HTMLElement;
-    xReticule.style.transform = `translateY(${y}px)`;
-    // y轴标线
-    const yReticule = reticuleDom.querySelector('#Reticule-Y') as HTMLElement;
-    yReticule.style.transform = `translateX(${x}px)`;
-  }, [reticuleInfo.x, reticuleInfo.y]);
+    reticleX.style.transform = `translateY(${y}px)`;
+    reticleY.style.transform = `translateX(${x}px)`;
+  }, [reticuleInfo]);
 };
 
 export default useReticle;

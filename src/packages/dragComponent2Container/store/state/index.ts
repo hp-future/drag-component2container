@@ -16,6 +16,7 @@ const state: StateType = {
   },
   componentsRect: [],
   currentComponentId: '',
+  zIndex: 0,
 };
 
 export default state;

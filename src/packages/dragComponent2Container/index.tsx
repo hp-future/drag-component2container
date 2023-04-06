@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import styles from './styles.module.less';
 import { componentTypes } from './config';
-import useDrag from './hooks/useDrag';
 import { useAppDispatch } from './store/hooks';
 import Reticule from './components/reticule';
 import ComponentContainer from './components/componentContainer';
 import { actions } from './store/slice';
+import useAddComponent from './hooks/useAddComponent';
+import ViewProps from './components/viewProps';
 
 const DragComponent2Container = () => {
   const dispatch = useAppDispatch();
+
+  const asideRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
 
   // 侧边栏，可拖拽组件列表
   const draggableComponents = componentTypes.map((item) => (
@@ -24,18 +28,26 @@ const DragComponent2Container = () => {
     }
   }
 
-  const { asideRef, mainRef } = useDrag();
+  /**
+   * 新增组件
+   */
+  useAddComponent(asideRef, mainRef);
+
+  function contextMenu(e: React.MouseEvent) {
+    e.preventDefault();
+  }
 
   return (
     <div className={styles.DragComponent2Container}>
       {/* 侧边栏 */}
       <aside ref={asideRef}>{draggableComponents}</aside>
       {/* 展示区域 */}
-      <main ref={mainRef} data-drop-container onMouseDown={mainMouseDown}>
+      <main ref={mainRef} data-drop-container onMouseDown={mainMouseDown} onContextMenu={contextMenu}>
         <ComponentContainer />
         <Reticule />
       </main>
       {/* 属性设置 */}
+      <ViewProps />
     </div>
   );
 };

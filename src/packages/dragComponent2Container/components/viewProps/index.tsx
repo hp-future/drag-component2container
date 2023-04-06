@@ -1,7 +1,7 @@
 import styles from './style.module.less';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 // import { updateCurrentChart } from '../../store/slice';
-import { Descriptions, InputNumber, Collapse } from 'antd';
+import { Descriptions, InputNumber, Collapse, Button } from 'antd';
 import React from 'react';
 
 const ViewProps = () => {
@@ -9,14 +9,16 @@ const ViewProps = () => {
   const dispatch = useAppDispatch();
 
   return (
-    <div className={styles['props-view']} style={{ display: components.length > 0 ? 'block' : 'none' }}>
-      {/* <div className={styles.title}>chart配置</div>
+    <div className={styles['props-view']}>
+      <Button block type="primary" style={{ borderRadius: 0 }}>
+        保存
+      </Button>
       <div className={styles.content}>
         <Collapse style={{ borderRadius: 0 }} size="small" bordered={false}>
           <Collapse.Panel header="图表容器配置" key="1">
             <Descriptions column={1} colon={false} labelStyle={{ alignItems: 'center' }}>
               <Descriptions.Item label="宽度">
-                <InputNumber
+                {/* <InputNumber
                   value={currentChart.containerProps.width}
                   onChange={(value) => {
                     dispatch(
@@ -27,10 +29,10 @@ const ViewProps = () => {
                     );
                   }}
                   style={{ width: '100%', borderRadius: 0 }}
-                />
+                /> */}
               </Descriptions.Item>
               <Descriptions.Item label="高度">
-                <InputNumber
+                {/* <InputNumber
                   value={currentChart.containerProps.height}
                   onChange={(value) => {
                     dispatch(
@@ -41,7 +43,7 @@ const ViewProps = () => {
                     );
                   }}
                   style={{ width: '100%', borderRadius: 0 }}
-                />
+                /> */}
               </Descriptions.Item>
             </Descriptions>
           </Collapse.Panel>
@@ -51,7 +53,7 @@ const ViewProps = () => {
             </Descriptions>
           </Collapse.Panel>
         </Collapse>
-      </div> */}
+      </div>
     </div>
   );
 };

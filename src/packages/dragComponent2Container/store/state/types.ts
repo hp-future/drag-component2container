@@ -16,6 +16,8 @@ export type componentType = {
   layout: {
     x: number;
     y: number;
+    width: number;
+    height: number;
   };
 };
 
@@ -59,4 +61,8 @@ export type StateType = {
    * 当前正在操作的组件id
    */
   currentComponentId: string;
+  /**
+   * 最高的z-index
+   */
+  zIndex: number;
 };

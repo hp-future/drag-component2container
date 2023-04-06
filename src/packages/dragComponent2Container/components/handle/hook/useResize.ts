@@ -1,13 +1,19 @@
 import { RefObject, useEffect, useRef } from 'react';
-import { useAppDispatch } from '../../../store/hooks';
-import { getTranslate } from '../../../utils/util';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { getTranslate, getWHByType } from '../../../utils/util';
 import { actions } from '../../../store/slice';
+import { StateType } from '../../../store/state/types';
 
 /**
  * 缩放
  */
 const useResize = (ref: RefObject<HTMLDivElement>) => {
   const dispatch = useAppDispatch();
+  const dragComponentDataState = useAppSelector((state) => state.dragComponent);
+  const dragComponentData = useRef<StateType>(dragComponentDataState);
+  useEffect(() => {
+    dragComponentData.current = dragComponentDataState;
+  }, [dragComponentDataState]);
 
   // 起始位置
   const mouseStartPosi = useRef({ x: 0, y: 0 });
@@ -18,94 +24,37 @@ const useResize = (ref: RefObject<HTMLDivElement>) => {
   // 初始大小
   const startSize = useRef({ width: 0, height: 0 });
   const startTransform = useRef({ translateX: 0, translateY: 0 });
+  // 组件允许缩放的最小宽高
+  const minWH = useRef({ width: 0, height: 0 });
 
   useEffect(() => {
-    if (!ref.current) {
+    const handleBoxDom = ref.current;
+    if (!handleBoxDom) {
       return;
     }
 
-    ref.current.addEventListener('mouseup', mouseup, true);
-    ref.current.addEventListener('mousedown', mousedown, true);
+    handleBoxDom.addEventListener('mouseup', mouseup, true);
+    handleBoxDom.addEventListener('mousedown', mousedown, true);
     document.addEventListener('mousemove', mousemove, true);
+    document.addEventListener('mouseup', mouseup, true);
 
     return () => {
       document.removeEventListener('mousemove', mousemove, true);
-      ref.current?.removeEventListener('mouseup', mouseup, true);
-      ref.current?.removeEventListener('mousedown', mousedown, true);
+      document.removeEventListener('mouseup', mouseup, true);
+      handleBoxDom?.removeEventListener('mouseup', mouseup, true);
+      handleBoxDom?.removeEventListener('mousedown', mousedown, true);
     };
   }, []);
 
-  function mousemove(e: MouseEvent) {
-    if (!mouseMmoving.current || !ref.current) {
+  /**
+   * 鼠标左键按下事件
+   */
+  function mousedown(e: MouseEvent) {
+    if (!(e.target as HTMLElement).hasAttribute('handle-name')) {
       return;
     }
 
-    const xDiff = e.clientX - mouseStartPosi.current.x;
-    const yDiff = e.clientY - mouseStartPosi.current.y;
-
-    const parentElement = ref.current.parentElement!;
-
-    switch (scaleDirection.current) {
-      case 'top-left': {
-        parentElement.style.width = startSize.current.width - xDiff + 'px';
-        parentElement.style.height = startSize.current.height - yDiff + 'px';
-        const newTranslateX = startTransform.current.translateX + xDiff;
-        const newTranslateY = startTransform.current.translateY + yDiff;
-        parentElement.style.transform = `translate(${newTranslateX}px, ${newTranslateY}px)`;
-        break;
-      }
-      case 'bottom-right': {
-        parentElement.style.width = startSize.current.width + xDiff + 'px';
-        parentElement.style.height = startSize.current.height + yDiff + 'px';
-        break;
-      }
-      case 'top-center': {
-        parentElement.style.height = startSize.current.height - yDiff + 'px';
-        const newTranslateY = startTransform.current.translateY + yDiff;
-        parentElement.style.transform = `translate(${startTransform.current.translateX}px, ${newTranslateY}px)`;
-        break;
-      }
-      case 'bottom-center': {
-        parentElement.style.height = startSize.current.height + yDiff + 'px';
-        break;
-      }
-      case 'top-right': {
-        parentElement.style.width = startSize.current.width + xDiff + 'px';
-        parentElement.style.height = startSize.current.height - yDiff + 'px';
-        const newTranslateY = startTransform.current.translateY + yDiff;
-        parentElement.style.transform = `translate(${startTransform.current.translateX}px, ${newTranslateY}px)`;
-        break;
-      }
-      case 'bottom-left': {
-        parentElement.style.width = startSize.current.width - xDiff + 'px';
-        parentElement.style.height = startSize.current.height + yDiff + 'px';
-        const newTranslateX = startTransform.current.translateX + xDiff;
-        parentElement.style.transform = `translate(${newTranslateX}px, ${startTransform.current.translateY}px)`;
-        break;
-      }
-      case 'right-center': {
-        parentElement.style.width = startSize.current.width + xDiff + 'px';
-        break;
-      }
-      case 'left-center': {
-        parentElement.style.width = startSize.current.width - xDiff + 'px';
-        const newTranslateX = startTransform.current.translateX + xDiff;
-        parentElement.style.transform = `translate(${newTranslateX}px, ${startTransform.current.translateY}px)`;
-        break;
-      }
-      default:
-        break;
-    }
-  }
-  function mouseup(e: MouseEvent) {
-    mouseMmoving.current = false;
-
-    // 更新组件的物理信息
-    const parentEle = (e.currentTarget as HTMLElement).parentElement as HTMLElement;
-    dispatch(actions.updateComponentsRect({ id: parentEle.id }));
-  }
-  function mousedown(e: MouseEvent) {
-    if (!(e.target as HTMLElement).hasAttribute('handle-name')) {
+    if (e.button !== 0) {
       return;
     }
 
@@ -124,6 +73,135 @@ const useResize = (ref: RefObject<HTMLDivElement>) => {
     // 获得缩放手柄，记录缩放方向
     const handleName = (e.target as HTMLElement).getAttribute('handle-name');
     scaleDirection.current = handleName || '';
+
+    // 组件允许缩放的最小宽高
+    const { components, currentComponentId } = dragComponentData.current;
+    const findCom = components.find((item) => item.id === currentComponentId);
+    if (findCom) {
+      minWH.current = getWHByType(findCom.type)!;
+    }
+  }
+
+  /**
+   * 鼠标左键按下移动事件
+   */
+  function mousemove(e: MouseEvent) {
+    if (!mouseMmoving.current || !ref.current) {
+      return;
+    }
+
+    if (e.button !== 0) {
+      return;
+    }
+
+    const xDiff = e.clientX - mouseStartPosi.current.x;
+    const yDiff = e.clientY - mouseStartPosi.current.y;
+
+    const parentElement = ref.current.parentElement!;
+    const { translateX, translateY } = startTransform.current;
+    const { width, height } = startSize.current;
+    const layout = {
+      x: translateX,
+      y: translateY,
+      width,
+      height,
+    };
+
+    switch (scaleDirection.current) {
+      case 'top-left': {
+        if (width - xDiff >= minWH.current.width) {
+          layout.width = width - xDiff;
+          layout.x = translateX + xDiff;
+        }
+        if (height - yDiff >= minWH.current.height) {
+          layout.height = height - yDiff;
+          layout.y = translateY + yDiff;
+        }
+        break;
+      }
+      case 'bottom-right': {
+        if (width + xDiff >= minWH.current.width) {
+          layout.width = width + xDiff;
+        }
+        if (height + yDiff >= minWH.current.height) {
+          layout.height = height + yDiff;
+        }
+        break;
+      }
+      case 'top-center': {
+        if (width + xDiff >= minWH.current.width) {
+          layout.width = width + xDiff;
+        }
+        if (height - yDiff >= minWH.current.height) {
+          layout.height = height - yDiff;
+          layout.y = translateY + yDiff;
+        }
+        break;
+      }
+      case 'bottom-center': {
+        if (height + yDiff >= minWH.current.height) {
+          layout.height = height + yDiff;
+        }
+        break;
+      }
+      case 'top-right': {
+        if (width + xDiff >= minWH.current.width) {
+          layout.width = width + xDiff;
+        }
+        if (height - yDiff >= minWH.current.height) {
+          layout.height = height - yDiff;
+          layout.y = translateY + yDiff;
+        }
+        break;
+      }
+      case 'bottom-left': {
+        if (width - xDiff >= minWH.current.width) {
+          layout.width = width - xDiff;
+          layout.x = translateX + xDiff;
+        }
+        if (height + yDiff >= minWH.current.height) {
+          layout.height = height + yDiff;
+        }
+        break;
+      }
+      case 'right-center': {
+        if (width + xDiff >= minWH.current.width) {
+          layout.width = width + xDiff;
+        }
+        break;
+      }
+      case 'left-center': {
+        if (width - xDiff >= minWH.current.width) {
+          layout.width = width - xDiff;
+          layout.x = translateX + xDiff;
+        }
+        break;
+      }
+      default:
+        break;
+    }
+
+    const { components, currentComponentId } = dragComponentData.current;
+    const findCom = components.find((item) => item.id === currentComponentId)!;
+    dispatch(actions.updateComponents({ ...findCom, layout }));
+  }
+
+  /**
+   * 鼠标左键抬起事件
+   */
+  function mouseup(e: MouseEvent) {
+    if (!mouseMmoving.current) {
+      return;
+    }
+    if (e.button !== 0) {
+      return;
+    }
+
+    mouseMmoving.current = false;
+
+    // 更新组件的物理信息
+    const parentEle = ref.current!.parentElement as HTMLElement;
+    dispatch(actions.updateComponentsRect({ id: parentEle.id }));
   }
 };
 

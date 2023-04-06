@@ -14,3 +14,18 @@ export function getTranslate(target: HTMLElement) {
 
   return [Number(translateX), Number(translateY)];
 }
+
+/**
+ * 根据组件类型获取默认宽高
+ * @param type  组件类型
+ */
+export function getWHByType(type: string) {
+  switch (type) {
+    case 'button':
+      return { width: 70, height: 32 };
+    case 'table':
+      return { width: 300, height: 200 };
+    default:
+      return null;
+  }
+}
