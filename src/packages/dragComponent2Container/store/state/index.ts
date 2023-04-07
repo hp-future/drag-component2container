@@ -14,7 +14,6 @@ const state: StateType = {
     x: null,
     y: null,
   },
-  componentsRect: [],
   currentComponentId: '',
   zIndex: 0,
   history: {

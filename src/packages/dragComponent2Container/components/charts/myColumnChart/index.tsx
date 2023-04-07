@@ -72,8 +72,6 @@ const MyColumnChart = () => {
     },
   };
 
-  console.log(1);
-
   return (
     <div className={styles.columnContainer}>
       <Column {...config} />
