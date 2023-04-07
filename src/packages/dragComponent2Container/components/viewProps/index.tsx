@@ -2,11 +2,22 @@ import styles from './style.module.less';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 // import { updateCurrentChart } from '../../store/slice';
 import { Descriptions, InputNumber, Collapse, Button } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { componentType } from '../../store/state/types';
+import { actions } from '../../store/slice';
+import MyInput from './components/myInput';
 
 const ViewProps = () => {
-  const { components } = useAppSelector((state) => state.dragComponent);
+  const { components, currentComponentId } = useAppSelector((state) => state.dragComponent);
   const dispatch = useAppDispatch();
+
+  const [currentComponent, setCurrentComponent] = useState<componentType | null>();
+  useEffect(() => {
+    const com = components.find((item) => item.id === currentComponentId);
+    if (com) {
+      setCurrentComponent(com);
+    }
+  }, [currentComponentId, components]);
 
   return (
     <div className={styles['props-view']}>
@@ -15,39 +26,23 @@ const ViewProps = () => {
       </Button>
       <div className={styles.content}>
         <Collapse style={{ borderRadius: 0 }} size="small" bordered={false}>
-          <Collapse.Panel header="图表容器配置" key="1">
+          <Collapse.Panel header="布局配置" key="1">
             <Descriptions column={1} colon={false} labelStyle={{ alignItems: 'center' }}>
-              <Descriptions.Item label="宽度">
-                {/* <InputNumber
-                  value={currentChart.containerProps.width}
-                  onChange={(value) => {
-                    dispatch(
-                      updateCurrentChart({
-                        ...currentChart,
-                        containerProps: { ...currentChart.containerProps, width: value as number },
-                      })
-                    );
-                  }}
-                  style={{ width: '100%', borderRadius: 0 }}
-                /> */}
+              <Descriptions.Item label="宽">
+                <MyInput field="width" />
               </Descriptions.Item>
-              <Descriptions.Item label="高度">
-                {/* <InputNumber
-                  value={currentChart.containerProps.height}
-                  onChange={(value) => {
-                    dispatch(
-                      updateCurrentChart({
-                        ...currentChart,
-                        containerProps: { ...currentChart.containerProps, height: value as number },
-                      })
-                    );
-                  }}
-                  style={{ width: '100%', borderRadius: 0 }}
-                /> */}
+              <Descriptions.Item label="高">
+                <MyInput field="height" />
+              </Descriptions.Item>
+              <Descriptions.Item label="左">
+                <MyInput field="x" />
+              </Descriptions.Item>
+              <Descriptions.Item label="上">
+                <MyInput field="y" />
               </Descriptions.Item>
             </Descriptions>
           </Collapse.Panel>
-          <Collapse.Panel header="图表配置" key="2">
+          <Collapse.Panel header="样式配置" key="2">
             <Descriptions column={1} colon={false} labelStyle={{ alignItems: 'center' }}>
               <Descriptions.Item label="图表配置">123</Descriptions.Item>
             </Descriptions>

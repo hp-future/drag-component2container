@@ -83,6 +83,7 @@ export const Slice = createSlice({
      * 撤销
      */
     undo(state: StateType) {
+      state.currentComponentId = '';
       const historyItem = state.history.undo.pop();
       state.components = state.history.undo[state.history.undo.length - 1] || [];
       if (historyItem) {
@@ -96,6 +97,7 @@ export const Slice = createSlice({
      * 恢复
      */
     redo(state: StateType) {
+      state.currentComponentId = '';
       const historyItem = state.history.redo.pop();
       state.components = historyItem || [];
       if (historyItem) {
@@ -109,6 +111,7 @@ export const Slice = createSlice({
      * 清空
      */
     clear(state: StateType) {
+      state.currentComponentId = '';
       state.components = [];
       // 重置历史记录
       state.history = {
