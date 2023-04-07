@@ -44,7 +44,7 @@ const DragComponent2Container = () => {
       {/* 侧边栏 */}
       <aside ref={asideRef}>{draggableComponentList}</aside>
       {/* 展示区域 */}
-      <main ref={mainRef} data-drop-container onMouseDown={mainMouseDown} onContextMenu={contextMenu}>
+      <main ref={mainRef} id="dropContainer" data-drop-container onMouseDown={mainMouseDown} onContextMenu={contextMenu}>
         <ComponentContainer />
         <Reticule />
         {/* 工具栏 */}

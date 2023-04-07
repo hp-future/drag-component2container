@@ -1,4 +1,5 @@
 import { RefObject, useEffect, useRef } from 'react';
+import useDropAreaResize from '../../../hooks/useDropAreaResize';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
 import { actions } from '../../../store/slice';
 import { StateType } from '../../../store/state/types';
@@ -21,6 +22,9 @@ const useMove = (ref: RefObject<HTMLDivElement>) => {
   const startPosi = useRef({ translateX: 0, translateY: 0 });
   const mouseStartPosi = useRef({ x: 0, y: 0 });
   const posi = useRef({ x: 0, y: 0 });
+
+  // 释放区域的大小
+  const dropContainerInfo = useDropAreaResize();
 
   // 初始化绑定事件
   useEffect(() => {
@@ -83,12 +87,27 @@ const useMove = (ref: RefObject<HTMLDivElement>) => {
       return;
     }
 
+    const { currentComponentId, components } = dragComponentData.current;
+    const currentComponent = components.find((item) => item.id === currentComponentId)!;
+
     // 新的边界坐标
-    const newTranslateX = startPosi.current.translateX + e.clientX - mouseStartPosi.current.x;
-    const newTranslateY = startPosi.current.translateY + e.clientY - mouseStartPosi.current.y;
+    let newTranslateX = startPosi.current.translateX + e.clientX - mouseStartPosi.current.x;
+    let newTranslateY = startPosi.current.translateY + e.clientY - mouseStartPosi.current.y;
+
+    // 边界碰撞
+    // 碰撞左边界
+    newTranslateX = newTranslateX <= 0 ? 0 : newTranslateX;
+    // 碰撞上边界
+    newTranslateY = newTranslateY <= 0 ? 0 : newTranslateY;
+    // 碰撞右边界
+    const { width } = currentComponent.layout;
+    newTranslateX =
+      width + newTranslateX >= dropContainerInfo.current.width
+        ? dropContainerInfo.current.width - width
+        : newTranslateX;
+
     const newTranslate = { x: newTranslateX, y: newTranslateY };
 
-    const { currentComponentId, components } = dragComponentData.current;
     // 更新十字标线坐标
     dispatch(actions.updateReticuleInfo(newTranslate));
     // 更新组件布局

@@ -1,5 +1,6 @@
 import styles from './style.module.less';
-import { Button, Modal } from 'antd';
+import { Button, Modal, Popover, Descriptions } from 'antd';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { actions } from '../../store/slice';
 
@@ -34,6 +35,12 @@ const Toolbar = () => {
       },
     });
   }
+
+  const help = (
+    <Descriptions column={1}>
+      <Descriptions.Item label="ctrl+鼠标左键">激活移动缩放功能</Descriptions.Item>
+    </Descriptions>
+  );
 
   return (
     <div
@@ -70,6 +77,16 @@ const Toolbar = () => {
       >
         清空
       </Button>
+      {/* 用户帮助 */}
+      <Popover
+        content={help}
+        title="用户帮助"
+        placement="bottomRight"
+        trigger="click"
+        overlayInnerStyle={{ width: '300px' }}
+      >
+        <QuestionCircleOutlined title="用户帮助" style={{ margin: '0 10px', cursor: 'help' }} />
+      </Popover>
     </div>
   );
 };

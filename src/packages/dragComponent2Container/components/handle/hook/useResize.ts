@@ -118,7 +118,7 @@ const useResize = (ref: RefObject<HTMLDivElement>) => {
         }
         break;
       }
-      case 'bottom-right': {
+      case 'bottom-right': {        
         if (width + xDiff >= minWH.current.width) {
           layout.width = width + xDiff;
         }
