@@ -28,6 +28,7 @@ const Toolbar = () => {
     Modal.confirm({
       title: '温馨提示',
       content: '确定要清空所有组件吗',
+      zIndex: 10000,
       onOk() {
         dispatch(actions.clear());
       },
