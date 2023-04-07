@@ -1,6 +1,6 @@
 import styles from './style.module.less';
 import { Table, TableColumnsType } from 'antd';
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import useResizeChange from './hook/useResizeChange';
 
 const MyTable = () => {
@@ -22,4 +22,4 @@ const MyTable = () => {
   );
 };
 
-export default MyTable;
+export default React.memo(MyTable);

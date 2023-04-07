@@ -1,7 +1,8 @@
 import { Button } from 'antd';
 import styles from './style.module.less';
+import React from 'react';
 
-const DefaultButton = () => {
+const MyButton = () => {
   return (
     <Button type="primary" block style={{ height: '100%', borderRadius: 0 }}>
       按钮
@@ -9,4 +10,4 @@ const DefaultButton = () => {
   );
 };
 
-export default DefaultButton;
+export default React.memo(MyButton);

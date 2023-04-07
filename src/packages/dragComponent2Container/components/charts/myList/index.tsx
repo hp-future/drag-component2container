@@ -1,4 +1,5 @@
 import styles from './style.module.less';
+import React from 'react';
 
 const MyList = () => {
   return (
@@ -15,4 +16,4 @@ const MyList = () => {
   );
 };
 
-export default MyList;
+export default React.memo(MyList);

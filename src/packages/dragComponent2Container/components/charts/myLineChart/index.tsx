@@ -1,6 +1,7 @@
-import { Line } from '@ant-design/plots';
+import { Line, LineConfig } from '@ant-design/plots';
 import { useState, useEffect } from 'react';
 import styles from './style.module.less';
+import React from 'react';
 
 const MyLineChart = () => {
   const [data, setData] = useState([]);
@@ -18,9 +19,9 @@ const MyLineChart = () => {
       });
   };
 
-  const config = {
+  const config: LineConfig = {
     data,
-    // padding: 'auto',
+    padding: 'auto',
     xField: 'Date',
     yField: 'scales',
     xAxis: {
@@ -36,4 +37,4 @@ const MyLineChart = () => {
   );
 };
 
-export default MyLineChart;
+export default React.memo(MyLineChart);

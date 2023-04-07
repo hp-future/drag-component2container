@@ -1,12 +1,15 @@
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import styles from './style.module.less';
-import { Button } from 'antd';
 import MyTable from '../charts/myTable';
 import Handle from '../handle';
 import { actions } from '../../store/slice';
 import React from 'react';
 import MyList from '../charts/myList';
 import MyLineChart from '../charts/myLineChart';
+import MyPieChart from '../charts/myPieChart';
+import MyColumnChart from '../charts/myColumnChart';
+import MyButton from '../charts/myButton';
+import { componentType } from '../../store/state/types';
 
 const ComponentContainer = () => {
   const { components } = useAppSelector((state) => state.dragComponent);
@@ -27,20 +30,20 @@ const ComponentContainer = () => {
    * 根据组件类型返回指定组件
    * @param type
    */
-  function getComponentByType(type: string) {
-    switch (type) {
+  function getComponentByType(props: componentType) {
+    switch (props.type) {
       case 'button':
-        return (
-          <Button type="primary" block style={{ height: '100%', borderRadius: 0 }}>
-            按钮
-          </Button>
-        );
+        return <MyButton key={props.id} />;
       case 'table':
-        return <MyTable />;
+        return <MyTable key={props.id} />;
       case 'list':
-        return <MyList />;
+        return <MyList key={props.id} />;
       case 'lineChart':
-        return <MyLineChart />;
+        return <MyLineChart key={props.id} />;
+      case 'pieChart':
+        return <MyPieChart key={props.id} />;
+      case 'columnChart':
+        return <MyColumnChart key={props.id} />;
       default:
         return null;
     }
@@ -69,7 +72,7 @@ const ComponentContainer = () => {
             height: `${item.layout.height}px`,
           }}
         >
-          {getComponentByType(item.type)}
+          {getComponentByType(item)}
           <Handle />
         </div>
       ))}
