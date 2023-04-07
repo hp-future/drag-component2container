@@ -5,6 +5,7 @@ import MyTable from '../charts/myTable';
 import Handle from '../handle';
 import { actions } from '../../store/slice';
 import React from 'react';
+import MyList from '../charts/myList';
 
 const ComponentContainer = () => {
   const { components } = useAppSelector((state) => state.dragComponent);
@@ -35,6 +36,8 @@ const ComponentContainer = () => {
         );
       case 'table':
         return <MyTable />;
+      case 'list':
+        return <MyList />;
       default:
         return null;
     }

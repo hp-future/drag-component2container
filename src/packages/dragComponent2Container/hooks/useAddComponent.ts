@@ -1,8 +1,8 @@
 import { RefObject, useEffect, useRef } from 'react';
+import { draggableComponents, DraggableComponentType } from '../config';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { actions } from '../store/slice';
 import { StateType } from '../store/state/types';
-import { getWHByType } from '../utils/util';
 
 /**
  * 添加组件
@@ -21,9 +21,10 @@ const useAddComponent = (asideRef: RefObject<HTMLElement>, mainRef: RefObject<HT
     mouseInTarget: { x: 0, y: 0 },
     // 鼠标在目标区域中的相对位置
     mouseInDropTarget: { x: 0, y: 0 },
-    // 组件类型
-    type: '',
   });
+
+  // 被拖拽组件的信息
+  const draggableComponentInfo = useRef<DraggableComponentType>();
 
   // 始化事件
   useEffect(() => {
@@ -61,8 +62,8 @@ const useAddComponent = (asideRef: RefObject<HTMLElement>, mainRef: RefObject<HT
     const mouseY = e.clientY - top;
     dragInfo.current.mouseInTarget = { x: mouseX, y: mouseY };
     // 组件类型
-    const componentType = dragTarget.getAttribute('data-type')!;
-    dragInfo.current.type = componentType;
+    const index = +dragTarget.getAttribute('data-index')!;
+    draggableComponentInfo.current = { ...draggableComponents[index] };
   }
 
   // 进入目标区域
@@ -81,47 +82,12 @@ const useAddComponent = (asideRef: RefObject<HTMLElement>, mainRef: RefObject<HT
     const mouseY = e.pageY - top;
 
     // 鼠标在目标元素中的相对位置
-    const { mouseInTarget } = dragInfo.current;
-    const computedX = mouseX - mouseInTarget.x;
-    const computedY = mouseY - mouseInTarget.y;
-    dragInfo.current.mouseInDropTarget = { x: computedX, y: computedY };
+    const { mouseInTarget } = dragInfo.current!;
+    const computedX = mouseX - mouseInTarget!.x;
+    const computedY = mouseY - mouseInTarget!.y;
+    dragInfo.current!.mouseInDropTarget = { x: computedX, y: computedY };
     // 更新十字标线坐标信息
-    dispatch(actions.updateReticuleInfo({ ...dragInfo.current.mouseInDropTarget }));
-
-    // const { components } = dragComponentData.current;
-    // // 计算和其他元素的横向距离
-    // for (let i = 0; i < components.length; i++) {
-    //   const { layout } = components[i];
-    //   // 对齐标线在左侧
-    //   const xLeft = Math.abs(computedX - layout.x);
-    //   // 对齐标线在右侧
-    //   const xRight = Math.abs(computedX - layout.x - layout.width);
-    //   if (xLeft <= 15) {
-    //     dragInfo.current.mouseInDropTarget.x = layout.x;
-    //     break;
-    //   }
-    //   if (xRight <= 15) {
-    //     dragInfo.current.mouseInDropTarget.x = layout.x + layout.width;
-    //     break;
-    //   }
-    // }
-
-    // // 计算和其他元素的纵向距离
-    // for (let i = 0; i < components.length; i++) {
-    //   const { layout } = components[i];
-    //   // 对齐标线在上侧
-    //   const yTop = Math.abs(computedY - layout.y);
-    //   // 对齐标线在下侧
-    //   const yBottom = Math.abs(computedY - layout.y - layout.height);
-    //   if (yTop <= 15) {
-    //     dragInfo.current.mouseInDropTarget.y = layout.y;
-    //     break;
-    //   }
-    //   if (yBottom <= 15) {
-    //     dragInfo.current.mouseInDropTarget.y = layout.y + layout.height;
-    //     break;
-    //   }
-    // }
+    dispatch(actions.updateReticuleInfo({ ...dragInfo.current!.mouseInDropTarget }));
   }
 
   // 在目标区域释放
@@ -136,7 +102,8 @@ const useAddComponent = (asideRef: RefObject<HTMLElement>, mainRef: RefObject<HT
 
     // 新增组件
     const id = 'component_' + Date.now();
-    const { type, mouseInDropTarget } = dragInfo.current;
+    const { type, props } = draggableComponentInfo.current!;
+    const { mouseInDropTarget } = dragInfo.current;
 
     // 对齐线
     const { alignLineInfo } = dragComponentData.current;
@@ -151,7 +118,10 @@ const useAddComponent = (asideRef: RefObject<HTMLElement>, mainRef: RefObject<HT
           // 自动识别边界
           x: x <= 15 ? 0 : x,
           y: y <= 15 ? 0 : y,
-          ...getWHByType(type)!,
+          width: props.minWidth,
+          height: props.minHeight,
+          minWidth: props.minWidth,
+          minHeight: props.minHeight,
         },
       })
     );

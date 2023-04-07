@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { getTranslate } from '../utils/util';
 import { RootState } from './index';
 import state from './state';
 import { componentType, StateType } from './state/types';
@@ -8,22 +7,37 @@ export const Slice = createSlice({
   name: 'dragComponent',
   initialState: state,
   reducers: {
+    /**
+     * 新增组件
+     */
     addComponents(state: StateType, action: PayloadAction<componentType>) {
       state.components.push(action.payload);
       state.history.undo.push(state.components);
     },
+    /**
+     * 更新组件信息
+     */
     updateComponents(state: StateType, action: PayloadAction<componentType>) {
       const index = state.components.findIndex((item) => item.id === action.payload.id);
       if (index !== -1) {
         state.components[index] = action.payload;
       }
     },
+    /**
+     * 更新拖拽状态
+     */
     updateDragging(state: StateType, action: PayloadAction<boolean>) {
       state.dragging = action.payload;
     },
+    /**
+     * 更新十字标线
+     */
     updateReticuleInfo(state: StateType, action: PayloadAction<StateType['reticuleInfo']>) {
       state.reticuleInfo = action.payload;
     },
+    /**
+     * 更新对齐标线
+     */
     updateAlignLineInfo(state: StateType, action: PayloadAction<{ x?: number | null; y?: number | null }>) {
       const { x, y } = action.payload;
       if (x !== undefined) {
@@ -33,19 +47,9 @@ export const Slice = createSlice({
         state.alignLineInfo.y = y;
       }
     },
-    updateComponentsRect(state: StateType, action: PayloadAction<{ id: string }>) {
-      const { id } = action.payload;
-      const ele = document.getElementById(id)!;
-      const width = ele.clientWidth;
-      const height = ele.clientHeight;
-      const [translateX, translateY] = getTranslate(ele);
-      const index = state.componentsRect.findIndex((item) => item[0] === action.payload.id);
-      if (index === -1) {
-        state.componentsRect.push([id, { width, height, left: translateX, top: translateY }]);
-      } else {
-        state.componentsRect[index][1] = { width, height, left: translateX, top: translateY };
-      }
-    },
+    /**
+     * 当前正在操作的组件
+     */
     updateCurrentComponentId(state: StateType, action: PayloadAction<{ id: string }>) {
       const { id } = action.payload;
 
@@ -106,7 +110,11 @@ export const Slice = createSlice({
      */
     clear(state: StateType) {
       state.components = [];
-      state.history.undo.push(state.components);
+      // 重置历史记录
+      state.history = {
+        undo: [],
+        redo: [],
+      };
     },
   },
 });

@@ -18,6 +18,8 @@ export type componentType = {
     y: number;
     width: number;
     height: number;
+    minWidth: number;
+    minHeight: number;
   };
 };
 

@@ -1,6 +1,6 @@
 import { RefObject, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { getTranslate, getWHByType } from '../../../utils/util';
+import { getTranslate } from '../../../utils/util';
 import { actions } from '../../../store/slice';
 import { StateType } from '../../../store/state/types';
 
@@ -78,7 +78,7 @@ const useResize = (ref: RefObject<HTMLDivElement>) => {
     const { components, currentComponentId } = dragComponentData.current;
     const findCom = components.find((item) => item.id === currentComponentId);
     if (findCom) {
-      minWH.current = getWHByType(findCom.type)!;
+      minWH.current = { width: findCom.layout.minWidth, height: findCom.layout.minHeight };
     }
   }
 
@@ -97,7 +97,6 @@ const useResize = (ref: RefObject<HTMLDivElement>) => {
     const xDiff = e.clientX - mouseStartPosi.current.x;
     const yDiff = e.clientY - mouseStartPosi.current.y;
 
-    const parentElement = ref.current.parentElement!;
     const { translateX, translateY } = startTransform.current;
     const { width, height } = startSize.current;
     const layout = {
@@ -183,7 +182,7 @@ const useResize = (ref: RefObject<HTMLDivElement>) => {
 
     const { components, currentComponentId } = dragComponentData.current;
     const findCom = components.find((item) => item.id === currentComponentId)!;
-    dispatch(actions.updateComponents({ ...findCom, layout }));
+    dispatch(actions.updateComponents({ ...findCom, layout: { ...findCom.layout, ...layout } }));
   }
 
   /**

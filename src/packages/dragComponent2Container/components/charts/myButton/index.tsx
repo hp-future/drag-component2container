@@ -3,9 +3,9 @@ import styles from './style.module.less';
 
 const DefaultButton = () => {
   return (
-    <div className="component-container">
-      <Button type="primary">默认按钮</Button>
-    </div>
+    <Button type="primary" block style={{ height: '100%', borderRadius: 0 }}>
+      按钮
+    </Button>
   );
 };
 
