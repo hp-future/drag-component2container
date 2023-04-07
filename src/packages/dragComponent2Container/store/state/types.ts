@@ -65,4 +65,11 @@ export type StateType = {
    * 最高的z-index
    */
   zIndex: number;
+  /**
+   * 历史记录
+   */
+  history: {
+    undo: Array<componentType>[];
+    redo: Array<componentType>[];
+  };
 };

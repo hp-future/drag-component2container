@@ -17,6 +17,10 @@ const state: StateType = {
   componentsRect: [],
   currentComponentId: '',
   zIndex: 0,
+  history: {
+    undo: [],
+    redo: [],
+  },
 };
 
 export default state;

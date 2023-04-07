@@ -10,6 +10,7 @@ export const Slice = createSlice({
   reducers: {
     addComponents(state: StateType, action: PayloadAction<componentType>) {
       state.components.push(action.payload);
+      state.history.undo.push(state.components);
     },
     updateComponents(state: StateType, action: PayloadAction<componentType>) {
       const index = state.components.findIndex((item) => item.id === action.payload.id);
@@ -67,6 +68,45 @@ export const Slice = createSlice({
      */
     updateZIndex(state: StateType) {
       state.zIndex += 1;
+    },
+    /**
+     * 添加历史记录
+     */
+    addHistory(state: StateType) {
+      state.history.undo.push(state.components);
+    },
+    /**
+     * 撤销
+     */
+    undo(state: StateType) {
+      const historyItem = state.history.undo.pop();
+      state.components = state.history.undo[state.history.undo.length - 1] || [];
+      if (historyItem) {
+        state.history.redo.push(historyItem);
+        if (state.history.redo.length > 100) {
+          state.history.redo.shift();
+        }
+      }
+    },
+    /**
+     * 恢复
+     */
+    redo(state: StateType) {
+      const historyItem = state.history.redo.pop();
+      state.components = historyItem || [];
+      if (historyItem) {
+        state.history.undo.push(historyItem);
+        if (state.history.undo.length > 100) {
+          state.history.undo.shift();
+        }
+      }
+    },
+    /**
+     * 清空
+     */
+    clear(state: StateType) {
+      state.components = [];
+      state.history.undo.push(state.components);
     },
   },
 });

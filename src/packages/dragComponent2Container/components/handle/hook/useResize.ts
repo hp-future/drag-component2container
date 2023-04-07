@@ -199,9 +199,7 @@ const useResize = (ref: RefObject<HTMLDivElement>) => {
 
     mouseMmoving.current = false;
 
-    // 更新组件的物理信息
-    const parentEle = ref.current!.parentElement as HTMLElement;
-    dispatch(actions.updateComponentsRect({ id: parentEle.id }));
+    dispatch(actions.addHistory());
   }
 };
 

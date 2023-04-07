@@ -10,7 +10,7 @@ const ViewProps = () => {
 
   return (
     <div className={styles['props-view']}>
-      <Button block type="primary" style={{ borderRadius: 0 }}>
+      <Button block type="primary" style={{ borderRadius: 0, backgroundColor: '#2969ff' }}>
         保存
       </Button>
       <div className={styles.content}>

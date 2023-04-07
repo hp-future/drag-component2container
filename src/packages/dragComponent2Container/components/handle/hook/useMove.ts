@@ -123,6 +123,7 @@ const useMove = (ref: RefObject<HTMLDivElement>) => {
     }
 
     dispatch(actions.updateDragging(false));
+    dispatch(actions.addHistory());
   };
 };
 

@@ -7,6 +7,7 @@ import ComponentContainer from './components/componentContainer';
 import { actions } from './store/slice';
 import useAddComponent from './hooks/useAddComponent';
 import ViewProps from './components/viewProps';
+import Toolbar from './components/Toolbar';
 
 const DragComponent2Container = () => {
   const dispatch = useAppDispatch();
@@ -45,6 +46,8 @@ const DragComponent2Container = () => {
       <main ref={mainRef} data-drop-container onMouseDown={mainMouseDown} onContextMenu={contextMenu}>
         <ComponentContainer />
         <Reticule />
+        {/* 工具栏 */}
+        <Toolbar />
       </main>
       {/* 属性设置 */}
       <ViewProps />
