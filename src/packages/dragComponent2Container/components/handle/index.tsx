@@ -13,7 +13,12 @@ const Handle = () => {
   }
 
   return (
-    <div className={[styles.handleContainer, 'handleBox'].join(' ')} ref={handleBoxRef} onClick={handleBoxClick}>
+    <div
+      className={[styles.handleContainer, 'handleBox'].join(' ')}
+      data-handle-box
+      ref={handleBoxRef}
+      onClick={handleBoxClick}
+    >
       <div handle-name="top-left" className={styles.handle}></div>
       <div handle-name="top-center" className={styles.handle}></div>
       <div handle-name="top-right" className={styles.handle}></div>

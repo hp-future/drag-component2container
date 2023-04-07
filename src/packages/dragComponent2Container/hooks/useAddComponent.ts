@@ -3,6 +3,7 @@ import { draggableComponents, DraggableComponentType } from '../config';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { actions } from '../store/slice';
 import { StateType } from '../store/state/types';
+import useDropAreaResize from './useDropAreaResize';
 
 /**
  * 添加组件
@@ -23,6 +24,9 @@ const useAddComponent = (asideRef: RefObject<HTMLElement>, mainRef: RefObject<HT
     mouseInDropTarget: { x: 0, y: 0 },
   });
 
+  // 开始拖拽
+  const startDrag = useRef(false);
+
   // 被拖拽组件的信息
   const draggableComponentInfo = useRef<DraggableComponentType>();
 
@@ -36,7 +40,6 @@ const useAddComponent = (asideRef: RefObject<HTMLElement>, mainRef: RefObject<HT
     mainDom?.addEventListener('dragover', onDragOver);
     mainDom?.addEventListener('drop', onDrop);
     mainDom?.addEventListener('dragleave', onDragLeave);
-    document.addEventListener('mouseup', mouseup);
 
     return () => {
       asideDom?.removeEventListener('dragstart', onDragStart);
@@ -44,16 +47,13 @@ const useAddComponent = (asideRef: RefObject<HTMLElement>, mainRef: RefObject<HT
       mainDom?.removeEventListener('dragover', onDragOver);
       mainDom?.removeEventListener('drop', onDrop);
       mainDom?.removeEventListener('dragleave', onDragLeave);
-      document.removeEventListener('mouseup', mouseup);
     };
   }, []);
 
-  function mouseup() {
-    dispatch(actions.updateDragging(false));
-  }
-
   // 开始拖拽
   function onDragStart(e: DragEvent) {
+    startDrag.current = true;
+
     // 被拖拽的元素
     const dragTarget = e.target as HTMLElement;
     // 鼠标在被拖拽的元素中的位置
@@ -69,11 +69,29 @@ const useAddComponent = (asideRef: RefObject<HTMLElement>, mainRef: RefObject<HT
   // 进入目标区域
   function onDragEnter(e: DragEvent) {}
 
+  // 释放区域的物理信息
+  const dropContainerLayout = useDropAreaResize();
+
   // 在目标区域中移动
   function onDragOver(e: DragEvent) {
     e.preventDefault();
 
-    dispatch(actions.updateDragging(true));
+    const { dragging } = dragComponentData.current;
+
+    // 判断鼠标是否在释放区域内
+    if (
+      e.clientX >= dropContainerLayout.current.left &&
+      e.clientX <= dropContainerLayout.current.right &&
+      e.clientY >= dropContainerLayout.current.top
+    ) {
+      if (!dragging) {
+        dispatch(actions.updateDragging(true));
+      }
+    } else {
+      if (dragging) {
+        dispatch(actions.updateDragging(false));
+      }
+    }
 
     const currentTarget = e.currentTarget as HTMLElement;
     // 鼠标在目标区域中的真实移动位置
@@ -92,13 +110,18 @@ const useAddComponent = (asideRef: RefObject<HTMLElement>, mainRef: RefObject<HT
 
   // 在目标区域释放
   function onDrop(e: DragEvent) {
+    const { dragging } = dragComponentData.current;
+    if (dragging) {
+      dispatch(actions.updateDragging(false));
+    }
+
+    startDrag.current = false;
+
     const target = e.target as HTMLElement;
     // 排除目标区域中其他元素的干扰
     if (!target.hasAttribute('data-drop-container')) {
       return;
     }
-
-    dispatch(actions.updateDragging(false));
 
     // 新增组件
     const id = 'component_' + Date.now();
