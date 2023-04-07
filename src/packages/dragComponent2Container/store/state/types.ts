@@ -23,14 +23,6 @@ export type componentType = {
   };
 };
 
-// 各组件的物理信息
-export type ComponentsRectType = {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-};
-
 /**
  * 全局状态类型
  */
@@ -55,10 +47,6 @@ export type StateType = {
     x: number | null;
     y: number | null;
   };
-  /**
-   * 各组件的物理信息，拖拽对齐时使用
-   */
-  componentsRect: Array<[string, ComponentsRectType]>;
   /**
    * 当前正在操作的组件id
    */

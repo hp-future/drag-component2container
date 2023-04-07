@@ -1,10 +1,24 @@
 {
-  "id": "",
-  "name": "",
+  "id": "3978403",
+  "name": "公共icon",
   "font_family": "iconfont",
   "css_prefix_text": "icon-",
   "description": "",
   "glyphs": [
+    {
+      "icon_id": "1766470",
+      "name": "符号-按钮",
+      "font_class": "anniu",
+      "unicode": "e690",
+      "unicode_decimal": 59024
+    },
+    {
+      "icon_id": "3545532",
+      "name": "列表",
+      "font_class": "liebiao",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    },
     {
       "icon_id": "4878739",
       "name": "表格",

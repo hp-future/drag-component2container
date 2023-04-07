@@ -8,6 +8,7 @@ import { actions } from './store/slice';
 import useAddComponent from './hooks/useAddComponent';
 import ViewProps from './components/viewProps';
 import Toolbar from './components/Toolbar';
+import './icon/iconfont.css';
 
 const DragComponent2Container = () => {
   const dispatch = useAppDispatch();
