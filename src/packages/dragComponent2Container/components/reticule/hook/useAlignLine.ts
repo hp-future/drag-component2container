@@ -35,6 +35,7 @@ const useAlignLine = () => {
     if (reticuleInfo.x <= 15) {
       alignY.style.transform = `translateX(0px)`;
       dispatch(actions.updateAlignLineInfo({ x: reticuleInfo.x }));
+      return;
     } else {
       alignY.style.transform = `translateX(-100px)`;
       dispatch(actions.updateAlignLineInfo({ x: null }));
@@ -42,6 +43,7 @@ const useAlignLine = () => {
     if (reticuleInfo.y <= 15) {
       alignX.style.transform = `translateY(0px)`;
       dispatch(actions.updateAlignLineInfo({ y: reticuleInfo.y }));
+      return;
     } else {
       alignX.style.transform = `translateY(-100px)`;
       dispatch(actions.updateAlignLineInfo({ y: null }));
