@@ -13,26 +13,17 @@ const useReticle = () => {
     // 纵向标线
     const reticleY = document.getElementById('Reticule-Y');
 
-    if (reticleX && reticleY) {
-      reticleX.style.display = dragging ? 'block' : 'none';
-      reticleY.style.display = dragging ? 'block' : 'none';
-    }
-  }, [dragging]);
-
-  useEffect(() => {
-    // 横向标线
-    const reticleX = document.getElementById('Reticule-X');
-    // 纵向标线
-    const reticleY = document.getElementById('Reticule-Y');
-
     if (!(reticleX && reticleY)) {
       return;
     }
 
+    reticleX.style.display = dragging ? 'block' : 'none';
+    reticleY.style.display = dragging ? 'block' : 'none';
+
     const { x, y } = reticuleInfo;
     reticleX.style.transform = `translateY(${y}px)`;
     reticleY.style.transform = `translateX(${x}px)`;
-  }, [reticuleInfo]);
+  }, [reticuleInfo, dragging]);
 };
 
 export default useReticle;
