@@ -86,9 +86,9 @@ const DragComponent2Container = () => {
 
     dispatch(actions.initComponents(components));
   }
-  useEffect(() => {
-    init();
-  }, []);
+  // useEffect(() => {
+  //   init();
+  // }, []);
 
   return (
     <div className={styles.DragComponent2Container}>
