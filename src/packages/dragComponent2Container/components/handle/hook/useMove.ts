@@ -63,7 +63,7 @@ const useMove = (ref: RefObject<HTMLDivElement>) => {
     // 组件容器
     const comContainer = (e.currentTarget as HTMLElement).parentElement!;
     // 组件容器距离释放区域边界的距离
-    const [translateX, translateY] = getTranslate(comContainer);
+    const { translateX, translateY } = getTranslate(comContainer);
 
     // 起始位置
     startPosi.current = { translateX, translateY };

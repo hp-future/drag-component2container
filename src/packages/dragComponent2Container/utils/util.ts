@@ -3,14 +3,15 @@
  * @param target    目标元素
  * @return [translateX, translateY]
  */
-export function getTranslate(target: HTMLElement) {
-  const style = getComputedStyle(target);
-  if (style.transform === 'none') {
-    return [0, 0];
-  }
+export function getTranslate(target: HTMLElement | Element) {
+  // 获取元素的 transform 值
+  const transformValue = getComputedStyle(target).getPropertyValue('transform');
 
-  const match = style.transform.match(/(?<=matrix\().*(?=\))/)?.[0] || '';
-  const [translateX, translateY] = match.split(',').slice(4);
+  // 解析 translate 值
+  const matrix = new DOMMatrix(transformValue);
+  const translateX = matrix.m41;
+  const translateY = matrix.m42;
 
-  return [Number(translateX), Number(translateY)];
+  return { translateX, translateY }
+
 }
