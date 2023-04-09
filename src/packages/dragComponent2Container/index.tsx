@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import styles from "./styles.module.less";
 import { draggableComponents } from "./config";
 import { useAppDispatch } from "./store/hooks";
@@ -41,6 +41,54 @@ const DragComponent2Container = () => {
   function contextMenu(e: React.MouseEvent) {
     e.preventDefault();
   }
+
+  /**
+   * 初始化
+   */
+  function init() {
+    const data = [
+      {
+        id: "component_1681047050837",
+        type: "text",
+        layout: {
+          x: 489,
+          y: 147,
+          width: 100,
+          height: 30,
+        },
+      },
+      {
+        id: "component_1681047052144",
+        type: "list",
+        layout: {
+          x: 405,
+          y: 225,
+          width: 200,
+          height: 260,
+        },
+      },
+    ];
+
+    const components = data.map((item) => {
+      const { props } = draggableComponents.find(
+        (el) => el.type === item.type
+      )!;
+
+      return {
+        ...item,
+        layout: {
+          ...item.layout,
+          minWidth: props.minWidth,
+          minHeight: props.minHeight,
+        },
+      };
+    });
+
+    dispatch(actions.initComponents(components));
+  }
+  useEffect(() => {
+    init();
+  }, []);
 
   return (
     <div className={styles.DragComponent2Container}>

@@ -8,6 +8,14 @@ export const Slice = createSlice({
   initialState: state,
   reducers: {
     /**
+     * 初始化 components
+     */
+    initComponents(state: StateType, action: PayloadAction<componentType[]>) {
+      state.history.undo.push([]);
+      state.components = action.payload
+      state.history.undo.push(state.components);
+    },
+    /**
      * 新增组件
      */
     addComponents(state: StateType, action: PayloadAction<componentType>) {
