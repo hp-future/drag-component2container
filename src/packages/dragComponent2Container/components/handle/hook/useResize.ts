@@ -67,7 +67,7 @@ const useResize = (ref: RefObject<HTMLDivElement>) => {
     // 初始大小
     startSize.current = { width: parentElement.clientWidth, height: parentElement.clientHeight };
     // 初始tanslate
-    const [translateX, translateY] = getTranslate(parentElement);
+    const { translateX, translateY } = getTranslate(parentElement);
     startTransform.current = { translateX, translateY };
 
     // 获得缩放手柄，记录缩放方向
@@ -118,7 +118,7 @@ const useResize = (ref: RefObject<HTMLDivElement>) => {
         }
         break;
       }
-      case 'bottom-right': {        
+      case 'bottom-right': {
         if (width + xDiff >= minWH.current.width) {
           layout.width = width + xDiff;
         }

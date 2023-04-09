@@ -20,14 +20,14 @@ const useAlignLineTranslate = () => {
 
     const intersectionObserver = new IntersectionObserver((entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
       entries.forEach(item => {
-        const target = item.target
+        const target = item.target as HTMLElement
         const { translateX, translateY } = getTranslate(target)
 
-        if (target.id === 'align-X') {
+        if (target.id === 'align-X' && target.style.display === 'block') {
           dispatch(actions.updateAlignLineInfo({ y: translateY === -100 ? null : translateY }))
         }
 
-        if (target.id === 'align-Y') {
+        if (target.id === 'align-Y' && target.style.display === 'block') {
           dispatch(actions.updateAlignLineInfo({ x: translateX === -100 ? null : translateX }))
         }
 
