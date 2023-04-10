@@ -12,7 +12,7 @@ import MyButton from '../charts/myButton';
 import { componentType } from '../../store/state/types';
 
 const ComponentContainer = () => {
-  const { components } = useAppSelector((state) => state.dragComponent);
+  const { components, zIndex } = useAppSelector((state) => state.dragComponent);
   const dispatch = useAppDispatch();
 
   /**
@@ -22,6 +22,8 @@ const ComponentContainer = () => {
     e.stopPropagation();
 
     if (e.ctrlKey) {
+      (e.currentTarget as HTMLElement).style.zIndex = zIndex + 1 + '';
+      dispatch(actions.updateZIndex());
       dispatch(actions.updateCurrentComponentId({ id: e.currentTarget.id }));
     }
   }

@@ -12,6 +12,5 @@ export function getTranslate(target: HTMLElement | Element) {
   const translateX = matrix.m41;
   const translateY = matrix.m42;
 
-  return { translateX, translateY }
-
+  return { translateX, translateY };
 }
