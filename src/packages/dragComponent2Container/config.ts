@@ -9,8 +9,8 @@ export interface DraggableComponentType {
 }
 
 export const draggableComponents: DraggableComponentType[] = [
-  { type: 'text', title: '文本', icon: 'icon-wenben', props: { minWidth: 100, minHeight: 30 } },
-  { type: 'button', title: '按钮', icon: 'icon-anniu', props: { minWidth: 70, minHeight: 32 } },
+  // { type: 'text', title: '文本', icon: 'icon-wenben', props: { minWidth: 100, minHeight: 30 } },
+  // { type: 'button', title: '按钮', icon: 'icon-anniu', props: { minWidth: 70, minHeight: 32 } },
   { type: 'table', title: '表格', icon: 'icon-biaoge', props: { minWidth: 300, minHeight: 200 } },
   { type: 'list', title: '列表', icon: 'icon-liebiao', props: { minWidth: 200, minHeight: 260 } },
   { type: 'lineChart', title: '折线图', icon: 'icon-LINE_CHART', props: { minWidth: 400, minHeight: 200 } },
